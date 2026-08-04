@@ -43,11 +43,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
+      { url: "/icon.png?v=2", type: "image/png", sizes: "192x192" },
+      { url: "/favicon-32.png?v=2", type: "image/png", sizes: "32x32" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
-    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-icon.png?v=2", sizes: "180x180" }],
+    shortcut: "/favicon.ico?v=2",
   },
   openGraph: {
     title: "Global Reklam | Antalya Tabela ve Reklam Üreticisi",
