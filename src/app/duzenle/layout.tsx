@@ -7,7 +7,11 @@ import { StoreProvider } from "@/store/StoreProvider";
 import { getNavLinks, getSiteSettings } from "@/lib/site";
 import { getContentMap } from "@/lib/site-content";
 import { mapNavToEditor, toEditorHref } from "@/lib/editor-href";
-import { getActiveCategories } from "@/lib/catalog";
+import {
+  getActiveCategories,
+  getFeaturedProjects,
+  getPublishedPosts,
+} from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,16 +26,27 @@ export default async function EditorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [settings, navLinks, content, categories] = await Promise.all([
-    getSiteSettings(),
-    getNavLinks(),
-    getContentMap(["footer_blurb"]),
-    getActiveCategories(),
-  ]);
+  const [settings, navLinks, content, categories, projects, posts] =
+    await Promise.all([
+      getSiteSettings(),
+      getNavLinks(),
+      getContentMap(["footer_blurb"]),
+      getActiveCategories(),
+      getFeaturedProjects(),
+      getPublishedPosts(),
+    ]);
   const editorNav = mapNavToEditor(navLinks);
   const menuCategories = categories.map((c) => ({
     href: toEditorHref(`/hizmetler/${c.slug}`),
     label: c.name,
+  }));
+  const menuProjects = projects.slice(0, 12).map((p) => ({
+    href: toEditorHref(`/projeler/${p.slug}`),
+    label: p.title,
+  }));
+  const menuPosts = posts.slice(0, 8).map((p) => ({
+    href: toEditorHref(`/blog/${p.slug}`),
+    label: p.title,
   }));
 
   return (
@@ -43,6 +58,8 @@ export default async function EditorLayout({
               settings={settings}
               navLinks={editorNav}
               categories={menuCategories}
+              projects={menuProjects}
+              blogPosts={menuPosts}
             />
             <main
               id="main-content"

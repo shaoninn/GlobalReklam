@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { ChevronRight, Menu, Phone, X } from "lucide-react";
 import { SiteLink } from "@/components/ui/SiteLink";
 import { WhatsAppIcon } from "@/components/brand/WhatsAppIcon";
-import { NAV_LINKS, PRIMARY_NAV_HREFS } from "@/lib/constants";
+import { LEGAL_LINKS, PRIMARY_NAV_HREFS } from "@/lib/constants";
 import { SECTORS } from "@/lib/sectors";
 import type { NavLinkItem } from "@/lib/site";
 
@@ -14,11 +14,24 @@ export interface MenuCategoryItem {
   label: string;
 }
 
-type SubPanel = "categories" | "sectors" | null;
+export interface MenuLinkItem {
+  href: string;
+  label: string;
+}
+
+type SubPanel =
+  | "categories"
+  | "sectors"
+  | "projects"
+  | "blog"
+  | "legal"
+  | null;
 
 interface SiteMenuProps {
   navLinks: NavLinkItem[];
   categories: MenuCategoryItem[];
+  projects?: MenuLinkItem[];
+  blogPosts?: MenuLinkItem[];
   phone: string;
   phoneRaw: string;
   whatsappUrl: string;
@@ -26,49 +39,46 @@ interface SiteMenuProps {
 
 const PRIMARY_SET = new Set<string>(PRIMARY_NAV_HREFS);
 
+/** Header dışı + alt menülü sayfalar (masaüstü menü). */
+const DRAWER_LINKS: { href: string; label: string; sub?: SubPanel }[] = [
+  { href: "/hizmetler", label: "Kategoriler", sub: "categories" },
+  { href: "/sektor", label: "Sektörler", sub: "sectors" },
+  { href: "/projeler", label: "Referanslar", sub: "projects" },
+  { href: "/blog", label: "Blog", sub: "blog" },
+  { href: "/neon-tasarla", label: "Neon Tasarla" },
+  { href: "/tekliflerim", label: "Tekliflerim" },
+  { href: "/sepet", label: "Sepetim" },
+  { href: "/odeme", label: "Ödeme" },
+  { href: "/hizmet-bolgeleri", label: "Hizmet Bölgeleri" },
+  { href: "/hakkimizda", label: "Hakkımızda" },
+  { href: "/iletisim", label: "İletişim" },
+  { href: "#legal", label: "Kurumsal / Yasal", sub: "legal" },
+];
+
+/** Mobil: ana sayfa + drawer sırası. */
+const MOBILE_LINKS: { href: string; label: string; sub?: SubPanel }[] = [
+  { href: "/", label: "Ana Sayfa" },
+  ...DRAWER_LINKS,
+];
+
 function publicPath(href: string): string {
   return href.replace(/^\/duzenle/, "") || "/";
 }
 
-/** Drawer: primary bar dışındaki sayfalar (+ mobil için tüm ana sayfalar). */
-function mergeDrawerLinks(
-  navLinks: NavLinkItem[],
-  includePrimary: boolean
-): NavLinkItem[] {
-  const byHref = new Map<string, NavLinkItem>();
-  for (const link of NAV_LINKS) {
-    byHref.set(link.href, { href: link.href, label: link.label });
-  }
-  for (const link of navLinks) {
-    const pub = publicPath(link.href);
-    byHref.set(pub, { href: link.href, label: link.label });
-  }
-  const order = NAV_LINKS.map((l) => l.href);
-  const ordered: NavLinkItem[] = [];
-  for (const href of order) {
-    const item = byHref.get(href);
-    if (!item) continue;
-    if (!includePrimary && PRIMARY_SET.has(href)) continue;
-    ordered.push(item);
-    byHref.delete(href);
-  }
-  for (const [href, item] of byHref) {
-    if (!includePrimary && PRIMARY_SET.has(href)) continue;
-    ordered.push(item);
-  }
-  return ordered;
-}
-
-function hasSubmenu(href: string): SubPanel {
-  const path = href.replace(/^\/duzenle/, "") || "/";
-  if (path === "/hizmetler") return "categories";
-  if (path === "/sektor") return "sectors";
-  return null;
+function toEditorAware(
+  href: string,
+  navLinks: NavLinkItem[]
+): string {
+  if (href.startsWith("#")) return href;
+  const match = navLinks.find((l) => publicPath(l.href) === href);
+  return match?.href || href;
 }
 
 export function SiteMenu({
   navLinks,
   categories,
+  projects = [],
+  blogPosts = [],
   phone,
   phoneRaw,
   whatsappUrl,
@@ -76,7 +86,6 @@ export function SiteMenu({
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState<SubPanel>(null);
   const [mounted, setMounted] = useState(false);
-  /** lg+ üstte primary var; menüde sadece kalanlar. Mobilde hepsi. */
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -91,7 +100,18 @@ export function SiteMenu({
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  const links = mergeDrawerLinks(navLinks, !isDesktop);
+  /** Masaüstünde header’daki ana linkleri menüden çıkar (alt menülüler hariç tutulmaz — kategori/sektör yanda kalsın). */
+  const rawLinks = isDesktop
+    ? DRAWER_LINKS.filter((l) => {
+        if (l.sub) return true; // alt menülüler her zaman menüde
+        return !PRIMARY_SET.has(l.href);
+      })
+    : MOBILE_LINKS;
+
+  const links = rawLinks.map((l) => ({
+    ...l,
+    href: toEditorAware(l.href, navLinks),
+  }));
 
   const close = useCallback(() => {
     setOpen(false);
@@ -111,24 +131,49 @@ export function SiteMenu({
     "Merhaba, tabela / reklam için bilgi almak istiyorum."
   )}`;
 
-  const subItems =
+  const subItems: MenuLinkItem[] =
     sub === "categories"
       ? [
-          { href: "/hizmetler", label: "Tüm kategoriler" },
+          { href: toEditorAware("/hizmetler", navLinks), label: "Tüm kategoriler" },
           ...categories,
         ]
       : sub === "sectors"
         ? [
-            { href: "/sektor", label: "Tüm sektörler" },
+            { href: toEditorAware("/sektor", navLinks), label: "Tüm sektörler" },
             ...SECTORS.map((s) => ({
               href: `/sektor/${s.slug}`,
               label: s.title,
             })),
           ]
-        : [];
+        : sub === "projects"
+          ? [
+              {
+                href: toEditorAware("/projeler", navLinks),
+                label: "Tüm referanslar",
+              },
+              ...projects,
+            ]
+          : sub === "blog"
+            ? [
+                { href: toEditorAware("/blog", navLinks), label: "Tüm yazılar" },
+                ...blogPosts,
+              ]
+            : sub === "legal"
+              ? LEGAL_LINKS.map((l) => ({ href: l.href, label: l.label }))
+              : [];
 
   const subTitle =
-    sub === "categories" ? "Kategoriler" : sub === "sectors" ? "Sektörler" : "";
+    sub === "categories"
+      ? "Kategoriler"
+      : sub === "sectors"
+        ? "Sektörler"
+        : sub === "projects"
+          ? "Referanslar"
+          : sub === "blog"
+            ? "Blog"
+            : sub === "legal"
+              ? "Kurumsal"
+              : "";
 
   const panel =
     open && mounted
@@ -147,16 +192,16 @@ export function SiteMenu({
             />
             <div
               id="site-menu-panel"
-              className="pointer-events-auto absolute top-0 right-0 h-full w-[min(100%,22rem)] sm:w-[min(100%,28rem)] md:w-[min(100%,36rem)] flex shadow-2xl"
+              className="pointer-events-auto absolute top-0 right-0 h-full w-[min(100%,22rem)] sm:w-[min(100%,36rem)] md:w-[min(100%,42rem)] flex shadow-2xl"
             >
               <nav
                 className={`h-full overflow-y-auto overscroll-contain bg-card border-l border-border flex flex-col ${
-                  sub ? "hidden sm:flex sm:w-[42%]" : "flex w-full"
+                  sub ? "hidden sm:flex sm:w-[44%]" : "flex w-full"
                 }`}
               >
                 <div className="px-4 py-4 border-b border-border flex items-center justify-between gap-2">
                   <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-orange">
-                    {isDesktop ? "Diğer" : "Menü"}
+                    Menü
                   </p>
                   <button
                     type="button"
@@ -169,21 +214,17 @@ export function SiteMenu({
                 </div>
 
                 <div className="flex-1 p-2 flex flex-col gap-0.5">
-                  {links.length === 0 && (
-                    <p className="px-3 py-4 text-sm text-muted">
-                      Ek sayfa yok.
-                    </p>
-                  )}
                   {links.map((link) => {
-                    const panelKey = hasSubmenu(link.href);
-                    const active = panelKey !== null && sub === panelKey;
-                    if (panelKey) {
+                    const active = link.sub != null && sub === link.sub;
+                    if (link.sub) {
                       return (
                         <button
-                          key={link.href}
+                          key={link.href + link.label}
                           type="button"
                           onClick={() =>
-                            setSub((cur) => (cur === panelKey ? null : panelKey))
+                            setSub((cur) =>
+                              cur === link.sub ? null : (link.sub ?? null)
+                            )
                           }
                           className={`flex items-center justify-between gap-2 px-3 py-3 text-left text-sm font-semibold tracking-wider uppercase rounded-lg transition-colors ${
                             active
@@ -230,7 +271,7 @@ export function SiteMenu({
               </nav>
 
               {sub && (
-                <div className="h-full w-full sm:w-[58%] overflow-y-auto overscroll-contain bg-black border-l border-border flex flex-col">
+                <div className="h-full w-full sm:w-[56%] overflow-y-auto overscroll-contain bg-black border-l border-border flex flex-col">
                   <div className="px-4 py-4 border-b border-border flex items-center justify-between gap-2">
                     <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-orange">
                       {subTitle}

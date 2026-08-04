@@ -4,7 +4,11 @@ import { FloatingContact } from "@/components/layout/FloatingContact";
 import { StoreProvider } from "@/store/StoreProvider";
 import { getNavLinks, getSiteSettings } from "@/lib/site";
 import { getContentMap } from "@/lib/site-content";
-import { getActiveCategories } from "@/lib/catalog";
+import {
+  getActiveCategories,
+  getFeaturedProjects,
+  getPublishedPosts,
+} from "@/lib/catalog";
 
 /** Build sırasında DB şart değil; istek anında çeker. */
 export const dynamic = "force-dynamic";
@@ -15,17 +19,27 @@ export default async function SiteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Parallel OK with pool≥2; both hit 60s memory cache after first warm.
-  const [settings, navLinks, content, categories] = await Promise.all([
-    getSiteSettings(),
-    getNavLinks(),
-    getContentMap(["footer_blurb"]),
-    getActiveCategories(),
-  ]);
+  const [settings, navLinks, content, categories, projects, posts] =
+    await Promise.all([
+      getSiteSettings(),
+      getNavLinks(),
+      getContentMap(["footer_blurb"]),
+      getActiveCategories(),
+      getFeaturedProjects(),
+      getPublishedPosts(),
+    ]);
 
   const menuCategories = categories.map((c) => ({
     href: `/hizmetler/${c.slug}`,
     label: c.name,
+  }));
+  const menuProjects = projects.slice(0, 12).map((p) => ({
+    href: `/projeler/${p.slug}`,
+    label: p.title,
+  }));
+  const menuPosts = posts.slice(0, 8).map((p) => ({
+    href: `/blog/${p.slug}`,
+    label: p.title,
   }));
 
   return (
@@ -40,6 +54,8 @@ export default async function SiteLayout({
         settings={settings}
         navLinks={navLinks}
         categories={menuCategories}
+        projects={menuProjects}
+        blogPosts={menuPosts}
       />
       <main id="main-content" className="min-h-screen pt-[5.5rem] sm:pt-[6rem] pb-24 md:pb-8">
         {children}

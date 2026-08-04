@@ -8,12 +8,15 @@ import { CartToast } from "@/components/shop/CartToast";
 import {
   SiteMenu,
   type MenuCategoryItem,
+  type MenuLinkItem,
 } from "@/components/layout/SiteMenu";
 import type { NavLinkItem } from "@/lib/site";
 
 interface HeaderClientProps {
   navLinks: NavLinkItem[];
   categories: MenuCategoryItem[];
+  projects?: MenuLinkItem[];
+  blogPosts?: MenuLinkItem[];
   phone: string;
   phoneRaw: string;
   whatsappUrl: string;
@@ -22,6 +25,8 @@ interface HeaderClientProps {
 export function HeaderClient({
   navLinks,
   categories,
+  projects = [],
+  blogPosts = [],
   phone,
   phoneRaw,
   whatsappUrl,
@@ -34,6 +39,8 @@ export function HeaderClient({
         <SiteMenu
           navLinks={navLinks}
           categories={categories}
+          projects={projects}
+          blogPosts={blogPosts}
           phone={phone}
           phoneRaw={phoneRaw}
           whatsappUrl={whatsappUrl}

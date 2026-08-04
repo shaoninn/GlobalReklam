@@ -5,12 +5,14 @@ import { Logo } from "@/components/brand/Logo";
 import { WhatsAppIcon } from "@/components/brand/WhatsAppIcon";
 import { LOCATION_LABEL, PRIMARY_NAV_LINKS } from "@/lib/constants";
 import type { NavLinkItem, SiteSettingsMap } from "@/lib/site";
-import type { MenuCategoryItem } from "@/components/layout/SiteMenu";
+import type { MenuCategoryItem, MenuLinkItem } from "@/components/layout/SiteMenu";
 
 interface HeaderProps {
   settings: SiteSettingsMap;
   navLinks: NavLinkItem[];
   categories?: MenuCategoryItem[];
+  projects?: MenuLinkItem[];
+  blogPosts?: MenuLinkItem[];
 }
 
 function publicPath(href: string): string {
@@ -39,6 +41,8 @@ export function Header({
   settings,
   navLinks,
   categories = [],
+  projects = [],
+  blogPosts = [],
 }: HeaderProps) {
   const waHref = `${settings.whatsappUrl}?text=${encodeURIComponent(
     "Merhaba, tabela / reklam için bilgi almak istiyorum."
@@ -96,6 +100,8 @@ export function Header({
             <HeaderClient
               navLinks={navLinks}
               categories={categories}
+              projects={projects}
+              blogPosts={blogPosts}
               phone={settings.phone}
               phoneRaw={settings.phoneRaw}
               whatsappUrl={settings.whatsappUrl}
