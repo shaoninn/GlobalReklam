@@ -87,10 +87,13 @@ export default function RootLayout({
   return (
     <html lang="tr" className={`${outfit.variable} ${spaceGrotesk.variable}`}>
       <body className="antialiased font-sans">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        {jsonLd.map((data, index) => (
+          <script
+            key={`ld-${index}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+          />
+        ))}
         {children}
         <Analytics />
       </body>

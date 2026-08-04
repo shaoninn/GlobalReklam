@@ -28,15 +28,19 @@ hPanel → **Websites → Add website → Node.js Web App**
 
 | Anahtar | Değer |
 |---------|--------|
-| `NODE_ENV` | `production` |
+| `NODE_ENV` | **`production`** (tam küçük harf; `development` / `Development` yazma — `next build` uyarır ve optimizasyon bozulur) |
 | `JWT_SECRET` | en az 32 karakter rastgele |
-| `NEXT_PUBLIC_SITE_URL` | `https://globalreklam.com` |
+| `NEXT_PUBLIC_SITE_URL` | `https://globalreklam.com` (veya canlı domainin) |
 | `MYSQL_USER` | `YOUR_MYSQL_USER` |
 | `MYSQL_PASSWORD` | MySQL şifren |
 | `MYSQL_HOST` | **Remote MySQL hostname** (`srv….hstgr.io`) — `localhost`/`127.0.0.1` Node Web App’te genelde çalışmaz |
 | `MYSQL_PORT` | `3306` |
 | `MYSQL_DATABASE` | `YOUR_MYSQL_DATABASE` |
 | `MYSQL_POOL_SIZE` | `3` (layout+sayfa paralel; acil durumda `1` + `MYSQL_SERIALIZE=1`) |
+
+### `NODE_ENV` uyarısı
+
+Logda *non-standard NODE_ENV* görürsen Hostinger env’de `NODE_ENV` yanlış (çoğu zaman `development`). Değeri `production` yapıp redeploy et. `npm run build` ayrıca `scripts/build.mjs` ile build sırasında `production` zorlar.
 
 Hâlâ P1000 ise hPanel → MySQL → kullanıcı şifresini **yenile** (özel karakter az kullan, örn. `DmdReklam2026Safe`) ve `MYSQL_PASSWORD`’ü güncelle.
 

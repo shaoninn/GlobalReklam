@@ -33,7 +33,10 @@ const child = spawn(
   ["next", "start", "--hostname", "0.0.0.0", "--port", String(port)],
   {
     stdio: "inherit",
-    env: process.env,
+    env: {
+      ...process.env,
+      NODE_ENV: "production",
+    },
     shell: process.platform === "win32",
   }
 );
