@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ShoppingCart, Check } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { addToCart } from "@/store/cartSlice";
@@ -12,35 +12,17 @@ import {
   type PriceFormulaRates,
   DEFAULT_RATES,
 } from "@/lib/price-formula";
+import { getNeonFont, loadNeonGoogleFont } from "@/lib/neon-fonts";
+import { NEON_COLORS } from "@/lib/neon-colors";
+import {
+  NEON_BACKBOARDS,
+  type NeonBackboardId,
+} from "@/lib/neon-backboard";
 import { NeonPreview } from "@/components/shop/NeonPreview";
 import { NeonScene3D } from "@/components/shop/NeonScene3D";
 import { NeonCameraAR } from "@/components/shop/NeonCameraAR";
-
-const FONTS = [
-  { id: "script", label: "Script", family: "'Segoe Script', 'Brush Script MT', cursive" },
-  { id: "display", label: "Display", family: "var(--font-display), 'Space Grotesk', sans-serif" },
-  { id: "sans", label: "Sans", family: "var(--font-sans), 'Outfit', sans-serif" },
-  { id: "slab", label: "Kalın", family: "Impact, Haettenschweiler, sans-serif" },
-  { id: "mono", label: "Mono", family: "ui-monospace, Consolas, monospace" },
-] as const;
-
-const COLORS = [
-  "#f5c518",
-  "#ffffff",
-  "#ef4444",
-  "#3b82f6",
-  "#22c55e",
-  "#ec4899",
-  "#a855f7",
-  "#fb923c",
-];
-
-const BACKBOARDS = [
-  { id: "none", label: "Yok", fee: false },
-  { id: "acrylic", label: "Şeffaf akrilik", fee: true },
-  { id: "black", label: "Siyah panel", fee: true },
-  { id: "wood", label: "Ahşap görünümlü", fee: true },
-] as const;
+import { NeonFontPicker } from "@/components/shop/NeonFontPicker";
+import { NeonColorPicker } from "@/components/shop/NeonColorPicker";
 
 interface NeonBuilderProps {
   rates?: PriceFormulaRates;
@@ -53,17 +35,20 @@ export function NeonBuilderStudio({
 }: NeonBuilderProps) {
   const dispatch = useAppDispatch();
   const [text, setText] = useState("GLOBAL");
-  const [color, setColor] = useState(COLORS[0]!);
-  const [fontId, setFontId] = useState<string>(FONTS[0]!.id);
+  const [color, setColor] = useState(NEON_COLORS[0]!.value);
+  const [fontId, setFontId] = useState("pacifico");
   const [presetId, setPresetId] = useState<string>("m");
-  const [backboard, setBackboard] =
-    useState<(typeof BACKBOARDS)[number]["id"]>("acrylic");
+  const [backboard, setBackboard] = useState<NeonBackboardId>("acrylic");
   const [view, setView] = useState<"flat" | "3d" | "ar">("flat");
   const [added, setAdded] = useState(false);
 
   const preset = SIZE_PRESETS.find((p) => p.id === presetId) || SIZE_PRESETS[1]!;
-  const font = FONTS.find((f) => f.id === fontId) || FONTS[0]!;
+  const font = getNeonFont(fontId);
   const hasBackboard = backboard !== "none";
+
+  useEffect(() => {
+    loadNeonGoogleFont(font);
+  }, [font]);
 
   const price = useMemo(
     () =>
@@ -153,25 +138,19 @@ export function NeonBuilderStudio({
         </div>
 
         {view === "flat" ? (
-          <div
-            className={`rounded-2xl overflow-hidden border border-border ${
-              backboard === "black"
-                ? "bg-[#111]"
-                : backboard === "wood"
-                  ? "bg-[#3d2b1f]"
-                  : backboard === "acrylic"
-                    ? "bg-gradient-to-br from-white/10 to-black"
-                    : "bg-black"
-            }`}
-          >
-            <NeonPreview
-              text={text || "YAZI"}
-              color={color}
-              fontFamily={font.family}
-            />
-          </div>
+          <NeonPreview
+            text={text || "YAZI"}
+            color={color}
+            fontFamily={font.family}
+            backboard={backboard}
+          />
         ) : view === "3d" ? (
-          <NeonScene3D text={text || "YAZI"} color={color} fontFamily={font.family} />
+          <NeonScene3D
+            text={text || "YAZI"}
+            color={color}
+            fontFamily={font.family}
+            backboard={backboard}
+          />
         ) : (
           <NeonCameraAR
             text={text || "YAZI"}
@@ -200,41 +179,16 @@ export function NeonBuilderStudio({
 
         <div>
           <p className="text-xs text-muted mb-2">Font</p>
-          <div className="flex flex-wrap gap-2">
-            {FONTS.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setFontId(f.id)}
-                className={`px-3 py-1.5 text-xs rounded-lg border ${
-                  fontId === f.id
-                    ? "border-orange text-orange"
-                    : "border-border text-muted"
-                }`}
-                style={{ fontFamily: f.family }}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <NeonFontPicker
+            value={fontId}
+            onChange={setFontId}
+            previewText={text.trim() || "Neon"}
+          />
         </div>
 
         <div>
           <p className="text-xs text-muted mb-2">Renk</p>
-          <div className="flex flex-wrap gap-2">
-            {COLORS.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setColor(c)}
-                className={`w-8 h-8 rounded-full border-2 ${
-                  color === c ? "border-white scale-110" : "border-transparent"
-                }`}
-                style={{ background: c }}
-                aria-label={c}
-              />
-            ))}
-          </div>
+          <NeonColorPicker value={color} onChange={setColor} />
         </div>
 
         <div>
@@ -260,7 +214,7 @@ export function NeonBuilderStudio({
         <div>
           <p className="text-xs text-muted mb-2">Backboard</p>
           <div className="flex flex-wrap gap-2">
-            {BACKBOARDS.map((b) => (
+            {NEON_BACKBOARDS.map((b) => (
               <button
                 key={b.id}
                 type="button"
