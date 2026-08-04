@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 /**
  * Direct TCP probe (bypasses Prisma pool) so Hostinger hostname issues are clear.
- * Open: https://globalreklam.com/api/health
+ * Open: https://globalreklamtabela.com/api/health
  */
 export async function GET() {
   let target = "unresolved";

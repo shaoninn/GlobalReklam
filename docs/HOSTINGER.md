@@ -28,15 +28,17 @@ hPanel → **Websites → Add website → Node.js Web App**
 
 | Anahtar | Değer |
 |---------|--------|
-| `NODE_ENV` | **`production`** (tam küçük harf; `development` / `Development` yazma — `next build` uyarır ve optimizasyon bozulur) |
-| `JWT_SECRET` | en az 32 karakter rastgele |
-| `NEXT_PUBLIC_SITE_URL` | `https://globalreklam.com` (veya canlı domainin) |
-| `MYSQL_USER` | `YOUR_MYSQL_USER` |
-| `MYSQL_PASSWORD` | MySQL şifren |
-| `MYSQL_HOST` | **Remote MySQL hostname** (`srv….hstgr.io`) — `localhost`/`127.0.0.1` Node Web App’te genelde çalışmaz |
+| `NODE_ENV` | **`production`** (tam küçük harf; `development` yazma) |
+| `JWT_SECRET` | `K8mP2qR9vX5nL7wY3tB6cH1jF4sA0dE8gR` (≥32; istersen değiştir) |
+| `NEXT_PUBLIC_SITE_URL` | `https://globalreklamtabela.com` |
+| `MYSQL_USER` | `u840487910_globalreklamad` |
+| `MYSQL_PASSWORD` | `SMglobal2026` |
+| `MYSQL_HOST` | `srv1805.hstgr.io` (hPanel → Uzak MySQL hostname; `localhost` değil) |
 | `MYSQL_PORT` | `3306` |
-| `MYSQL_DATABASE` | `YOUR_MYSQL_DATABASE` |
-| `MYSQL_POOL_SIZE` | `3` (layout+sayfa paralel; acil durumda `1` + `MYSQL_SERIALIZE=1`) |
+| `MYSQL_DATABASE` | `u840487910_globalreklam` |
+| `MYSQL_POOL_SIZE` | `3` |
+
+**Not:** Remote MySQL’de kullanıcı için `%` (Any Host) izni açık olmalı. `DATABASE_URL` satırı ekleme.
 
 ### `NODE_ENV` uyarısı
 
@@ -56,7 +58,7 @@ Normal start **her boot’ta db push çalıştırmaz** (bağlantı havuzunu kili
 
 ## DB bağlantı testi
 
-Deploy sonrası: `https://globalreklam.com/api/health`
+Deploy sonrası: `https://globalreklamtabela.com/api/health`
 
 ### `database: down` + timeout (şimdiki durum)
 

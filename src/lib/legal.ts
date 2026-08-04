@@ -7,7 +7,7 @@ export const LEGAL_UPDATED = "4 Ağustos 2026";
 export const COMPANY = {
   name: "Global Reklam",
   address: "Çakırlar, Antalya",
-  email: "info@globalreklam.com",
+  email: "info@globalreklamtabela.com",
   phone: "0 (532) 224 07 85",
-  site: "https://globaltabela.com.tr",
+  site: "https://globalreklamtabela.com",
 };
