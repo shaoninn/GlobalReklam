@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: grroot
+      MYSQL_DATABASE: globalreklam
+      MYSQL_USER: gr
+      MYSQL_PASSWORD: gr
+    ports:
+      - "3306:3306"
+    volumes:
+      - gr_mysql_data:/var/lib/mysql
+    command: ["--default-authentication-plugin=mysql_native_password", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+
+volumes:
+  gr_mysql_data:
