@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronRight, Menu, Phone, X } from "lucide-react";
 import { SiteLink } from "@/components/ui/SiteLink";
 import { WhatsAppIcon } from "@/components/brand/WhatsAppIcon";
@@ -74,11 +75,16 @@ export function SiteMenu({
 }: SiteMenuProps) {
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState<SubPanel>(null);
+  const [mounted, setMounted] = useState(false);
   /** lg+ üstte primary var; menüde sadece kalanlar. Mobilde hepsi. */
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
     const apply = () => setIsDesktop(mq.matches);
     apply();
     mq.addEventListener("change", apply);
@@ -94,16 +100,11 @@ export function SiteMenu({
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, close]);
 
   const waHref = `${whatsappUrl}?text=${encodeURIComponent(
@@ -129,11 +130,149 @@ export function SiteMenu({
   const subTitle =
     sub === "categories" ? "Kategoriler" : sub === "sectors" ? "Sektörler" : "";
 
+  const panel =
+    open && mounted
+      ? createPortal(
+          <div
+            className="fixed inset-0 z-[80] pointer-events-none"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site menüsü"
+          >
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/60 pointer-events-auto cursor-default"
+              aria-label="Menüyü kapat"
+              onClick={close}
+            />
+            <div
+              id="site-menu-panel"
+              className="pointer-events-auto absolute top-0 right-0 h-full w-[min(100%,22rem)] sm:w-[min(100%,28rem)] md:w-[min(100%,36rem)] flex shadow-2xl"
+            >
+              <nav
+                className={`h-full overflow-y-auto overscroll-contain bg-card border-l border-border flex flex-col ${
+                  sub ? "hidden sm:flex sm:w-[42%]" : "flex w-full"
+                }`}
+              >
+                <div className="px-4 py-4 border-b border-border flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-orange">
+                    {isDesktop ? "Diğer" : "Menü"}
+                  </p>
+                  <button
+                    type="button"
+                    className="w-9 h-9 inline-flex items-center justify-center text-muted hover:text-orange"
+                    onClick={close}
+                    aria-label="Menüyü kapat"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="flex-1 p-2 flex flex-col gap-0.5">
+                  {links.length === 0 && (
+                    <p className="px-3 py-4 text-sm text-muted">
+                      Ek sayfa yok.
+                    </p>
+                  )}
+                  {links.map((link) => {
+                    const panelKey = hasSubmenu(link.href);
+                    const active = panelKey !== null && sub === panelKey;
+                    if (panelKey) {
+                      return (
+                        <button
+                          key={link.href}
+                          type="button"
+                          onClick={() =>
+                            setSub((cur) => (cur === panelKey ? null : panelKey))
+                          }
+                          className={`flex items-center justify-between gap-2 px-3 py-3 text-left text-sm font-semibold tracking-wider uppercase rounded-lg transition-colors ${
+                            active
+                              ? "bg-orange/10 text-orange"
+                              : "text-muted hover:text-orange hover:bg-orange/5"
+                          }`}
+                          aria-expanded={active}
+                        >
+                          <span>{link.label}</span>
+                          <ChevronRight size={16} className="shrink-0" />
+                        </button>
+                      );
+                    }
+                    return (
+                      <SiteLink
+                        key={link.href}
+                        href={link.href}
+                        onClick={close}
+                        className="px-3 py-3 text-sm font-semibold tracking-wider text-muted hover:text-orange hover:bg-orange/5 transition-colors uppercase rounded-lg"
+                      >
+                        {link.label}
+                      </SiteLink>
+                    );
+                  })}
+                </div>
+
+                <div className="p-3 border-t border-border grid grid-cols-1 gap-2">
+                  <a
+                    href={`tel:+${phoneRaw}`}
+                    className="flex items-center justify-center gap-2 px-4 py-3 border border-border text-sm font-semibold text-white hover:border-orange hover:text-orange rounded-lg"
+                  >
+                    <Phone size={16} /> Ara
+                  </a>
+                  <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white text-sm font-semibold rounded-lg hover:brightness-110"
+                  >
+                    <WhatsAppIcon size={16} /> WhatsApp
+                  </a>
+                  <p className="text-center text-xs text-muted">{phone}</p>
+                </div>
+              </nav>
+
+              {sub && (
+                <div className="h-full w-full sm:w-[58%] overflow-y-auto overscroll-contain bg-black border-l border-border flex flex-col">
+                  <div className="px-4 py-4 border-b border-border flex items-center justify-between gap-2">
+                    <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-orange">
+                      {subTitle}
+                    </p>
+                    <button
+                      type="button"
+                      className="text-muted hover:text-orange text-xs uppercase tracking-wider"
+                      onClick={() => setSub(null)}
+                    >
+                      Geri
+                    </button>
+                  </div>
+                  <div className="flex-1 p-2 flex flex-col gap-0.5">
+                    {subItems.map((item) => (
+                      <SiteLink
+                        key={item.href}
+                        href={item.href}
+                        onClick={close}
+                        className="px-3 py-3 text-sm text-white/85 hover:text-orange hover:bg-orange/5 transition-colors rounded-lg"
+                      >
+                        {item.label}
+                      </SiteLink>
+                    ))}
+                    {subItems.length <= 1 && (
+                      <p className="px-3 py-4 text-sm text-muted">
+                        Alt sayfa bulunamadı.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
+
   return (
     <>
       <button
         type="button"
-        className="inline-flex w-10 h-10 items-center justify-center text-muted hover:text-orange transition-colors"
+        className="inline-flex w-10 h-10 items-center justify-center text-muted hover:text-orange transition-colors border border-transparent hover:border-border rounded-md"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
         aria-expanded={open}
@@ -141,127 +280,7 @@ export function SiteMenu({
       >
         {open ? <X size={22} /> : <Menu size={22} />}
       </button>
-
-      {open && (
-        <div className="fixed inset-0 top-[5.5rem] sm:top-[6rem] z-40">
-          <div
-            className="absolute inset-0 bg-black/75"
-            onClick={close}
-            aria-hidden
-          />
-
-          <div
-            id="site-menu-panel"
-            className="absolute top-0 right-0 h-full w-full max-w-lg sm:max-w-xl md:max-w-2xl flex shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Site menüsü"
-          >
-            {/* Primary pages — hidden on mobile when a submenu is open */}
-            <nav
-              className={`h-full overflow-y-auto bg-card border-l border-border flex-col safe-pb ${
-                sub ? "hidden sm:flex sm:w-[42%]" : "flex w-full max-w-sm ml-auto"
-              }`}
-            >
-              <div className="px-4 py-4 border-b border-border">
-                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-orange">
-                  {isDesktop ? "Diğer" : "Menü"}
-                </p>
-              </div>
-
-              <div className="flex-1 p-2 flex flex-col gap-0.5">
-                {links.map((link) => {
-                  const panel = hasSubmenu(link.href);
-                  const active = panel !== null && sub === panel;
-                  if (panel) {
-                    return (
-                      <button
-                        key={link.href}
-                        type="button"
-                        onClick={() =>
-                          setSub((cur) => (cur === panel ? null : panel))
-                        }
-                        className={`flex items-center justify-between gap-2 px-3 py-3 text-left text-sm font-semibold tracking-wider uppercase rounded-lg transition-colors ${
-                          active
-                            ? "bg-orange/10 text-orange"
-                            : "text-muted hover:text-orange hover:bg-orange/5"
-                        }`}
-                        aria-expanded={active}
-                      >
-                        <span>{link.label}</span>
-                        <ChevronRight size={16} className="shrink-0" />
-                      </button>
-                    );
-                  }
-                  return (
-                    <SiteLink
-                      key={link.href}
-                      href={link.href}
-                      onClick={close}
-                      className="px-3 py-3 text-sm font-semibold tracking-wider text-muted hover:text-orange hover:bg-orange/5 transition-colors uppercase rounded-lg"
-                    >
-                      {link.label}
-                    </SiteLink>
-                  );
-                })}
-              </div>
-
-              <div className="p-3 border-t border-border grid grid-cols-1 gap-2">
-                <a
-                  href={`tel:+${phoneRaw}`}
-                  className="flex items-center justify-center gap-2 px-4 py-3 border border-border text-sm font-semibold text-white hover:border-orange hover:text-orange rounded-lg"
-                >
-                  <Phone size={16} /> Ara
-                </a>
-                <a
-                  href={waHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white text-sm font-semibold rounded-lg hover:brightness-110"
-                >
-                  <WhatsAppIcon size={16} /> WhatsApp
-                </a>
-                <p className="text-center text-xs text-muted">{phone}</p>
-              </div>
-            </nav>
-
-            {/* Sub pages side panel */}
-            {sub && (
-              <div className="h-full w-full sm:w-[58%] overflow-y-auto bg-black border-l border-border flex flex-col safe-pb ml-auto sm:ml-0">
-                <div className="px-4 py-4 border-b border-border flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-orange">
-                    {subTitle}
-                  </p>
-                  <button
-                    type="button"
-                    className="text-muted hover:text-orange text-xs uppercase tracking-wider"
-                    onClick={() => setSub(null)}
-                  >
-                    Geri
-                  </button>
-                </div>
-                <div className="flex-1 p-2 flex flex-col gap-0.5">
-                  {subItems.map((item) => (
-                    <SiteLink
-                      key={item.href}
-                      href={item.href}
-                      onClick={close}
-                      className="px-3 py-3 text-sm text-white/85 hover:text-orange hover:bg-orange/5 transition-colors rounded-lg"
-                    >
-                      {item.label}
-                    </SiteLink>
-                  ))}
-                  {subItems.length <= 1 && (
-                    <p className="px-3 py-4 text-sm text-muted">
-                      Alt sayfa bulunamadı.
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {panel}
     </>
   );
 }

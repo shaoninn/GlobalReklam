@@ -5,7 +5,6 @@ import { SiteLink } from "@/components/ui/SiteLink";
 import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
 import type { SiteSettingsMap } from "@/lib/site";
 import {
-  GOOGLE_BUSINESS_URL,
   GOOGLE_MAPS_EMBED_QUERY,
 } from "@/lib/constants";
 import { EditableText } from "@/components/editor/EditableText";
@@ -61,9 +60,10 @@ export function ContactForm({
 
   const mapsEmbed = `https://www.google.com/maps?q=${encodeURIComponent(
     GOOGLE_MAPS_EMBED_QUERY
-  )}&output=embed&hl=tr`;
-  const mapsOpenUrl =
-    settings.googleReviewsUrl?.trim() || GOOGLE_BUSINESS_URL;
+  )}&z=17&hl=tr&output=embed`;
+  const mapsOpenUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    GOOGLE_MAPS_EMBED_QUERY
+  )}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

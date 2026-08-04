@@ -94,8 +94,14 @@ export function EditableImage({
       );
     }
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt={alt} className={imgClassName} />
+      <div className={`relative overflow-hidden ${aspectClass} ${className || ""}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={alt}
+          className={`absolute inset-0 h-full w-full ${imgClassName}`}
+        />
+      </div>
     );
   }
 

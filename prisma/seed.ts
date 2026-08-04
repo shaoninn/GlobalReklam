@@ -514,8 +514,8 @@ async function main() {
   await prisma.adminUser.deleteMany();
 
   const plainPassword = process.env.ADMIN_PASSWORD || "admin123";
-  if (plainPassword.length < 8) {
-    throw new Error("ADMIN_PASSWORD en az 8 karakter olmalı");
+  if (plainPassword.length < 6) {
+    throw new Error("ADMIN_PASSWORD en az 6 karakter olmalı");
   }
   if (!process.env.ADMIN_PASSWORD) {
     console.warn(

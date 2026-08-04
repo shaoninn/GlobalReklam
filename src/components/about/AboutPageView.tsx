@@ -65,7 +65,8 @@ export function AboutPageView({ data }: { data: AboutPageData }) {
                   fallback={fallback}
                   alt={`Global Reklam atölye / saha ${n}`}
                   aspectClass="aspect-[4/3]"
-                  className="border border-border overflow-hidden bg-card"
+                  imgClassName="object-cover object-center"
+                  className="border border-border overflow-hidden bg-card rounded-lg"
                   help={`Hakkımızda galeri görseli ${n}`}
                 />
               );

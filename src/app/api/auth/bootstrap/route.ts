@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
       body.password || process.env.ADMIN_PASSWORD || "admin123";
     const name = body.name || "Global Admin";
 
-    if (password.length < 8) {
+    if (password.length < 6) {
       return NextResponse.json(
-        { error: "Şifre en az 8 karakter olmalı" },
+        { error: "Şifre en az 6 karakter olmalı" },
         { status: 400 }
       );
     }

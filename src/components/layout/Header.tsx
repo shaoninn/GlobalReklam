@@ -81,12 +81,12 @@ export function Header({
               <Logo size="md" priority />
             </div>
 
-            <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center min-w-0 px-2">
+            <nav className="hidden md:flex items-center gap-0.5 flex-1 justify-center min-w-0 px-1 overflow-x-auto">
               {primaryNav.map((link) => (
                 <SiteLink
                   key={link.href}
                   href={link.href}
-                  className="px-2.5 xl:px-3 py-2 text-[10px] xl:text-[11px] font-semibold tracking-widest text-muted hover:text-orange transition-colors uppercase whitespace-nowrap"
+                  className="shrink-0 px-2 xl:px-2.5 py-2 text-[10px] xl:text-[11px] font-semibold tracking-wider text-muted hover:text-orange transition-colors uppercase whitespace-nowrap"
                 >
                   {link.label}
                 </SiteLink>

@@ -11,7 +11,8 @@ export const INSTAGRAM = "https://www.instagram.com/globalreklamm/";
 /** Google İşletme Profili */
 export const GOOGLE_BUSINESS_URL = "https://share.google/mmdpck843WySI93pq";
 /** Harita gömme — işletme adı + adres araması */
-export const GOOGLE_MAPS_EMBED_QUERY = "Global Tabela, Çakırlar, Antalya";
+export const GOOGLE_MAPS_EMBED_QUERY =
+  "Global Tabela, Çakırlar Mahallesi, Antalya";
 /** Eski vitrin (Ticimax) — referans / yönlendirme */
 export const LEGACY_SITE_URL = "https://globaltabela.com.tr";
 export const WORK_HOURS = {
