@@ -11,6 +11,7 @@ export interface CartItem {
   widthCm?: number | null;
   heightCm?: number | null;
   color?: string | null;
+  optionsNote?: string | null;
 }
 
 export function cartLineId(input: {
@@ -18,11 +19,13 @@ export function cartLineId(input: {
   widthCm?: number | null;
   heightCm?: number | null;
   color?: string | null;
+  optionsNote?: string | null;
 }): string {
   const w = input.widthCm ?? "";
   const h = input.heightCm ?? "";
   const c = (input.color || "").trim().toLowerCase();
-  return `${input.productId}|${w}|${h}|${c}`;
+  const o = (input.optionsNote || "").trim().slice(0, 80);
+  return `${input.productId}|${w}|${h}|${c}|${o}`;
 }
 
 export interface ProductSpecs {
@@ -51,12 +54,20 @@ export interface Product {
   description: string | null;
   shortDesc: string | null;
   price: number;
+  salePrice?: number | null;
   image: string | null;
+  nightImage?: string | null;
   images: string;
   specs: string;
   sortOrder: number;
   isActive: boolean;
   inStock: boolean;
+  isFeatured?: boolean;
+  badgeNew?: boolean;
+  badgeBestseller?: boolean;
+  badgeSale?: boolean;
+  shippingLabel?: string | null;
+  campaignEndsAt?: string | Date | null;
   categoryId: string;
   category?: Category;
 }
@@ -67,6 +78,7 @@ export interface Project {
   slug: string;
   description: string | null;
   image: string | null;
+  imageBefore?: string | null;
   images: string;
   location: string | null;
   sortOrder: number;

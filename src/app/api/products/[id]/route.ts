@@ -9,12 +9,20 @@ const productUpdateSchema = z.object({
   description: z.string().optional().nullable(),
   shortDesc: z.string().optional().nullable(),
   price: z.number().min(0).optional(),
+  salePrice: z.number().min(0).optional().nullable(),
   image: z.string().nullable().optional(),
+  nightImage: z.string().nullable().optional(),
   images: z.string().optional(),
   specs: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
   inStock: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  badgeNew: z.boolean().optional(),
+  badgeBestseller: z.boolean().optional(),
+  badgeSale: z.boolean().optional(),
+  shippingLabel: z.string().max(120).optional().nullable(),
+  campaignEndsAt: z.string().optional().nullable(),
   categoryId: z.string().optional(),
 });
 
@@ -32,10 +40,21 @@ export async function PUT(
   try {
     const body = await request.json();
     const data = productUpdateSchema.parse(body);
+    const { campaignEndsAt, ...rest } = data;
 
     const product = await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(campaignEndsAt !== undefined
+          ? {
+              campaignEndsAt:
+                campaignEndsAt && campaignEndsAt.length > 0
+                  ? new Date(campaignEndsAt)
+                  : null,
+            }
+          : {}),
+      },
     });
 
     return NextResponse.json(product);

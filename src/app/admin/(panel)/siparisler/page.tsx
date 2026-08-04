@@ -23,10 +23,18 @@ export default async function AdminOrdersPage() {
   return (
     <div>
       <h1 className="font-display text-3xl font-bold mb-2">Siparişler</h1>
-      <p className="text-sm text-[#888] mb-6">
+      <p className="text-sm text-[#888] mb-2">
         Ödeme henüz aktif değil. Bu kayıtlar teklif / sipariş talepleridir.
         Tarih ve durum ile filtreleyin; eski kayıtları silerek karışıklığı
         azaltın.
+      </p>
+      <p className="mb-6">
+        <a
+          href="/admin/siparisler/kanban"
+          className="text-sm text-orange hover:underline"
+        >
+          Kanban görünümü →
+        </a>
       </p>
       <OrdersClient initial={initial} />
     </div>

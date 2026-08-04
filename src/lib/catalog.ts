@@ -75,6 +75,13 @@ export const getFeaturedProjects = cache(async () => {
 });
 
 async function loadFeaturedProducts() {
+  const featured = await prisma.product.findMany({
+    where: { isActive: true, inStock: true, isFeatured: true },
+    include: { category: true },
+    orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+    take: 8,
+  });
+  if (featured.length > 0) return featured;
   return prisma.product.findMany({
     where: { isActive: true, inStock: true },
     include: { category: true },
@@ -91,6 +98,29 @@ export const getFeaturedProducts = cache(async () => {
     });
   } catch (error) {
     console.error("[catalog] getFeaturedProducts failed:", error);
+    return [];
+  }
+});
+
+async function loadRecentProductPool() {
+  return prisma.product.findMany({
+    where: { isActive: true },
+    include: { category: true },
+    orderBy: { updatedAt: "desc" },
+    take: 40,
+  });
+}
+
+/** Small pool for client-side recently-viewed matching — one cached query. */
+export const getRecentProductPool = cache(async () => {
+  try {
+    return await memoryCache(
+      "catalog:products:recent-pool",
+      loadRecentProductPool,
+      { ttlMs: CATALOG_TTL_MS, skipEmpty: true }
+    );
+  } catch (error) {
+    console.error("[catalog] getRecentProductPool failed:", error);
     return [];
   }
 });

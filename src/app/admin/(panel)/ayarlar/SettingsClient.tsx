@@ -10,13 +10,24 @@ import {
 
 const FIELDS = [
   { key: "phone", label: "Telefon", help: "Sitede ve WhatsApp butonunda görünür." },
-  { key: "whatsapp", label: "WhatsApp (ülke kodlu)", help: "Örn: 905327359884 — sadece rakam." },
+  { key: "whatsapp", label: "WhatsApp (ülke kodlu)", help: "Örn: 905322240785 — sadece rakam." },
   { key: "email", label: "E-posta" },
   { key: "address", label: "Adres" },
   { key: "instagram", label: "Instagram URL" },
-  { key: "google_reviews_url", label: "Google işletme / yorum linki", help: "Örn: share.google/... veya maps profil linki. İletişim sayfasındaki “Google’da aç” buraya gider." },
+  { key: "google_reviews_url", label: "Google işletme / yorum linki", help: "Örn: share.google/... veya maps profil linki." },
   { key: "work_hours_weekdays", label: "Hafta içi çalışma saati" },
   { key: "work_hours_sunday", label: "Pazar" },
+  { key: "manufacturer_email", label: "Üretici / atölye e-posta", help: "Yeni teklifte üretim özeti buraya gider." },
+  { key: "payment_enabled", label: "Ödeme paneli (1=açık)", help: "1 veya true yazınca /odeme banka bilgilerini vurgular." },
+  { key: "bank_name", label: "Banka adı" },
+  { key: "bank_iban", label: "IBAN" },
+  { key: "bank_holder", label: "Hesap sahibi" },
+  { key: "payment_note", label: "Ödeme notu" },
+  { key: "price_per_cm2", label: "Fiyat: cm²", help: "Neon formül — örn. 0.35" },
+  { key: "price_per_letter", label: "Fiyat: harf", help: "örn. 45" },
+  { key: "price_per_neon_m", label: "Fiyat: neon metre", help: "örn. 180" },
+  { key: "price_base_mount", label: "Fiyat: montaj tabanı", help: "örn. 250" },
+  { key: "price_backboard", label: "Fiyat: backboard", help: "örn. 350" },
 ] as const;
 
 export function SettingsClient({

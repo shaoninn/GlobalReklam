@@ -15,11 +15,13 @@ function normalizeItem(raw: CartItem): CartItem {
   const widthCm = raw.widthCm ?? null;
   const heightCm = raw.heightCm ?? null;
   const color = raw.color ?? null;
+  const optionsNote = raw.optionsNote ?? null;
   return {
     ...raw,
     widthCm,
     heightCm,
     color,
+    optionsNote,
     lineId:
       raw.lineId ||
       cartLineId({
@@ -27,6 +29,7 @@ function normalizeItem(raw: CartItem): CartItem {
         widthCm,
         heightCm,
         color,
+        optionsNote,
       }),
   };
 }

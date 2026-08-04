@@ -5,22 +5,61 @@ import {
   ShoppingBag,
   MessageSquare,
   Images,
-  AlertTriangle,
   Pencil,
+  TrendingUp,
+  Clock,
+  CreditCard,
 } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 async function getStats() {
-  const [products, orders, unreadMessages, projects, pendingOrders] =
-    await Promise.all([
-      prisma.product.count(),
-      prisma.order.count(),
-      prisma.contactMessage.count({ where: { isRead: false } }),
-      prisma.project.count(),
-      prisma.order.count({ where: { status: "PENDING" } }),
-    ]);
-  return { products, orders, unreadMessages, projects, pendingOrders };
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const [
+    products,
+    orders,
+    unreadMessages,
+    projects,
+    pendingOrders,
+    todayQuotes,
+    unpaid,
+    confirmed,
+    recentOrders,
+  ] = await Promise.all([
+    prisma.product.count(),
+    prisma.order.count(),
+    prisma.contactMessage.count({ where: { isRead: false } }),
+    prisma.project.count(),
+    prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.order.count({ where: { createdAt: { gte: startOfDay } } }),
+    prisma.order.count({
+      where: { paymentStatus: { in: ["UNPAID", "PENDING"] }, status: { not: "CANCELLED" } },
+    }),
+    prisma.order.count({ where: { status: "CONFIRMED" } }),
+    prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { orderNo: true, name: true, total: true, status: true, createdAt: true },
+    }),
+  ]);
+
+  const conversion =
+    orders > 0 ? Math.round((confirmed / orders) * 100) : 0;
+
+  return {
+    products,
+    orders,
+    unreadMessages,
+    projects,
+    pendingOrders,
+    todayQuotes,
+    unpaid,
+    conversion,
+    recentOrders,
+  };
 }
 
 export default async function AdminDashboard() {
@@ -28,32 +67,53 @@ export default async function AdminDashboard() {
 
   const cards = [
     {
+      label: "Bugün teklif",
+      value: stats.todayQuotes,
+      href: "/admin/siparisler",
+      icon: Clock,
+      hint: "Bugün gelen teklif talepleri",
+    },
+    {
+      label: "Bekleyen",
+      value: stats.pendingOrders,
+      href: "/admin/siparisler",
+      icon: ShoppingBag,
+      hint: "Onay bekleyen kayıtlar",
+    },
+    {
+      label: "Ödeme açık",
+      value: stats.unpaid,
+      href: "/admin/siparisler",
+      icon: CreditCard,
+      hint: "UNPAID / PENDING ödemeler",
+    },
+    {
+      label: "Dönüşüm %",
+      value: stats.conversion,
+      href: "/admin/siparisler/kanban",
+      icon: TrendingUp,
+      hint: "Onaylanan / tüm teklifler",
+    },
+    {
       label: "Ürünler",
       value: stats.products,
       href: "/admin/urunler",
       icon: Package,
-      hint: "Katalogdaki tüm ürünler",
+      hint: "Katalog",
     },
     {
-      label: "Bekleyen Sipariş",
-      value: stats.pendingOrders,
-      href: "/admin/siparisler",
-      icon: ShoppingBag,
-      hint: "Onay bekleyen teklif talepleri",
-    },
-    {
-      label: "Okunmamış Mesaj",
+      label: "Mesajlar",
       value: stats.unreadMessages,
       href: "/admin/mesajlar",
       icon: MessageSquare,
-      hint: "İletişim formundan gelenler",
+      hint: "Okunmamış",
     },
     {
       label: "Projeler",
       value: stats.projects,
       href: "/admin/projeler",
       icon: Images,
-      hint: "Portföy / çalışmalar",
+      hint: "Portföy",
     },
   ];
 
@@ -61,8 +121,8 @@ export default async function AdminDashboard() {
     <div>
       <h1 className="font-display text-3xl font-bold mb-2">Hoş Geldiniz</h1>
       <p className="text-muted mb-8">
-        Bu panelden sitenizin tüm içeriklerini yönetebilirsiniz. Sol menüden
-        ilgili bölüme geçin. Her sayfada sarı uyarı kutuları size yol gösterir.
+        KPI özeti: bugünkü teklifler, dönüşüm ve ödeme durumu. Sol menüden
+        kanban, CRM hatırlatma ve ürün SEO skoruna ulaşın.
       </p>
 
       <Link
@@ -77,82 +137,59 @@ export default async function AdminDashboard() {
             Siteyi Düzenle
           </p>
           <p className="text-sm text-[#888] leading-relaxed">
-            Canlı sayfada metin ve görsellere tıklayarak düzenleyin — Wix tarzı
-            editör. Ürün / proje / kategori ekleme buradan yapılmaz.
+            Canlı sayfada metin ve görsellere tıklayarak düzenleyin.
           </p>
         </div>
-        <span className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-orange text-black text-sm font-bold uppercase tracking-wider shrink-0">
-          Aç
-        </span>
       </Link>
 
-      <div className="admin-warning mb-8 flex gap-3 items-start">
-        <AlertTriangle size={20} className="shrink-0 mt-0.5" />
-        <div>
-          <strong>Önemli:</strong> Silme işlemleri geri alınamaz. Ürün veya
-          kategori silmeden önce emin olun. Varsayılan şifreyi (
-          <code className="text-orange">admin123</code>) mümkün olan en kısa
-          sürede değiştirin. Online ödeme henüz aktif değildir — siparişler
-          teklif talebi olarak kaydedilir.
-        </div>
-      </div>
-
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {cards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="admin-card p-5 hover:border-orange/50 transition-colors"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <Icon size={22} className="text-orange" />
-                <span className="font-display text-3xl font-bold">
-                  {card.value}
-                </span>
-              </div>
-              <p className="font-semibold text-white">{card.label}</p>
-              <p className="text-xs text-[#666] mt-1">{card.hint}</p>
-            </Link>
-          );
-        })}
+        {cards.map((card) => (
+          <Link
+            key={card.label}
+            href={card.href}
+            className="admin-card p-5 hover:border-orange/50 transition-colors"
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <p className="text-xs text-[#888] uppercase tracking-wider">
+                {card.label}
+              </p>
+              <card.icon size={18} className="text-orange shrink-0" />
+            </div>
+            <p className="font-display text-3xl font-bold text-white">
+              {card.value}
+            </p>
+            <p className="text-xs text-[#666] mt-2">{card.hint}</p>
+          </Link>
+        ))}
       </div>
 
-      <div className="admin-card p-6">
-        <h2 className="font-display text-xl font-bold mb-4">Hızlı Başlangıç</h2>
-        <ol className="space-y-3 text-sm text-[#ccc] list-decimal list-inside">
-          <li>
-            <Link href="/duzenle" className="text-orange hover:underline">
-              Siteyi Düzenle
-            </Link>
-            {" "}— ana sayfa, hakkımızda, iletişim metinleri ve görseller
-          </li>
-          <li>
-            <Link href="/admin/ayarlar" className="text-orange hover:underline">
-              Ayarlar
-            </Link>
-            {" "}— telefon, adres, WhatsApp numarası
-          </li>
-          <li>
-            <Link href="/admin/urunler" className="text-orange hover:underline">
-              Ürünler
-            </Link>
-            {" "}— fiyat, stok, görsel ekleme/güncelleme
-          </li>
-          <li>
-            <Link href="/admin/projeler" className="text-orange hover:underline">
-              Projeler
-            </Link>
-            {" "}— ana sayfa kaydırıcısında görünen çalışmalar
-          </li>
-          <li>
-            <Link href="/admin/siparisler" className="text-orange hover:underline">
-              Siparişler
-            </Link>
-            {" "}— gelen teklif taleplerini onaylayın veya iptal edin
-          </li>
-        </ol>
+      <div className="admin-card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold">Son teklifler</h2>
+          <Link href="/admin/crm" className="text-xs text-orange hover:underline">
+            CRM hatırlatmalar →
+          </Link>
+        </div>
+        <ul className="space-y-2 text-sm">
+          {stats.recentOrders.length === 0 && (
+            <li className="text-[#888]">Henüz kayıt yok.</li>
+          )}
+          {stats.recentOrders.map((o) => (
+            <li
+              key={o.orderNo}
+              className="flex justify-between gap-3 border-b border-[#222] pb-2"
+            >
+              <Link
+                href={`/admin/siparisler`}
+                className="text-orange hover:underline"
+              >
+                {o.orderNo}
+              </Link>
+              <span className="text-[#aaa] truncate">{o.name}</span>
+              <span className="text-white shrink-0">{formatPrice(o.total)}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

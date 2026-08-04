@@ -32,9 +32,12 @@ export const LEGAL_LINKS = [
 export const NAV_LINKS = [
   { href: "/", label: "ANA SAYFA" },
   { href: "/hizmetler", label: "KATEGORİLER" },
+  { href: "/neon-tasarla", label: "NEON TASARLA" },
+  { href: "/sektor", label: "SEKTÖRLER" },
   { href: "/projeler", label: "REFERANSLAR" },
   { href: "/hakkimizda", label: "HAKKIMIZDA" },
   { href: "/blog", label: "BLOG" },
+  { href: "/tekliflerim", label: "TEKLİFLERİM" },
   { href: "/iletisim", label: "İLETİŞİM" },
 ] as const;
 

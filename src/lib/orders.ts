@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { generateOrderNo } from "@/lib/api";
-import { sendOrderConfirmation } from "@/lib/mail";
+import { sendOrderConfirmation, sendManufacturerBrief } from "@/lib/mail";
 import { writeAuditLog } from "@/lib/audit";
 
 export interface QuoteItemInput {
@@ -12,6 +12,36 @@ export interface QuoteItemInput {
   optionsNote?: string | null;
 }
 
+function parseCustomLine(item: QuoteItemInput): {
+  productName: string;
+  productSlug: string | null;
+  unitPrice: number;
+} | null {
+  const isCustom =
+    item.productId === "neon-builder" || item.productId.startsWith("custom-");
+  if (!isCustom) return null;
+
+  let unitPrice = 0;
+  let productName = "Özel tasarım";
+  let productSlug: string | null = "neon-tasarla";
+  try {
+    const note = JSON.parse(item.optionsNote || "{}") as {
+      estimatedPrice?: number;
+      customText?: string;
+      builder?: boolean;
+    };
+    if (typeof note.estimatedPrice === "number" && note.estimatedPrice >= 0) {
+      unitPrice = note.estimatedPrice;
+    }
+    if (note.customText?.trim()) {
+      productName = `Özel Neon: ${note.customText.trim()}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return { productName, productSlug, unitPrice };
+}
+
 export async function createQuoteOrder(input: {
   name: string;
   phone: string;
@@ -21,8 +51,11 @@ export async function createQuoteOrder(input: {
   source?: string;
   items: QuoteItemInput[];
   ip?: string | null;
+  wantPayment?: boolean;
 }) {
-  const productIds = input.items.map((i) => i.productId);
+  const productIds = input.items
+    .map((i) => i.productId)
+    .filter((id) => id !== "neon-builder" && !id.startsWith("custom-"));
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, isActive: true },
   });
@@ -30,6 +63,23 @@ export async function createQuoteOrder(input: {
 
   const items = [];
   for (const item of input.items) {
+    const custom = parseCustomLine(item);
+    if (custom) {
+      items.push({
+        productId: null as string | null,
+        productName: custom.productName,
+        productSlug: custom.productSlug,
+        unitPrice: custom.unitPrice,
+        quantity: item.quantity,
+        lineTotal: custom.unitPrice * item.quantity,
+        widthCm: item.widthCm ?? null,
+        heightCm: item.heightCm ?? null,
+        color: item.color?.trim() || null,
+        optionsNote: item.optionsNote?.trim() || null,
+      });
+      continue;
+    }
+
     const product = byId[item.productId];
     if (!product) {
       throw new Error("Sepette geçersiz veya pasif ürün var. Sepeti güncelleyin.");
@@ -37,13 +87,21 @@ export async function createQuoteOrder(input: {
     if (!product.inStock) {
       throw new Error(`${product.name} şu an teklife kapalı.`);
     }
+    const unit =
+      product.badgeSale &&
+      product.salePrice != null &&
+      product.salePrice < product.price &&
+      (!product.campaignEndsAt || product.campaignEndsAt > new Date())
+        ? product.salePrice
+        : product.price;
+
     items.push({
       productId: product.id,
       productName: product.name,
       productSlug: product.slug,
-      unitPrice: product.price,
+      unitPrice: unit,
       quantity: item.quantity,
-      lineTotal: product.price * item.quantity,
+      lineTotal: unit * item.quantity,
       widthCm: item.widthCm ?? null,
       heightCm: item.heightCm ?? null,
       color: item.color?.trim() || null,
@@ -68,6 +126,9 @@ export async function createQuoteOrder(input: {
     },
   });
 
+  const reminderAt = new Date();
+  reminderAt.setHours(reminderAt.getHours() + 24);
+
   const order = await prisma.order.create({
     data: {
       orderNo: generateOrderNo(),
@@ -78,6 +139,10 @@ export async function createQuoteOrder(input: {
       note: input.note || null,
       source: input.source || "WEB",
       status: "PENDING",
+      paymentStatus: input.wantPayment ? "PENDING" : "UNPAID",
+      paymentProvider: input.wantPayment ? "BANK_TRANSFER" : null,
+      invoiceNo: `F-${Date.now().toString(36).toUpperCase()}`,
+      reminderAt,
       total,
       customerId: customer.id,
       items: { create: items },
@@ -104,5 +169,13 @@ export async function createQuoteOrder(input: {
     items: order.items,
   });
 
-  return { order, mail };
+  const manufacturer = await sendManufacturerBrief(order);
+  if (manufacturer.sent) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { manufacturerNotified: true },
+    });
+  }
+
+  return { order, mail, manufacturer };
 }

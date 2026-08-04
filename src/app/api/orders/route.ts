@@ -24,6 +24,7 @@ const createOrderSchema = z.object({
   kvkkAccepted: z
     .boolean()
     .refine((v) => v === true, { message: "KVKK onayı gerekli" }),
+  wantPayment: z.boolean().optional(),
   items: z.array(orderItemSchema).min(1, "Sepet boş olamaz"),
 });
 
@@ -61,6 +62,7 @@ export async function POST(request: NextRequest) {
       source: data.source || "WEB",
       items: data.items,
       ip,
+      wantPayment: data.wantPayment,
     });
 
     return NextResponse.json({

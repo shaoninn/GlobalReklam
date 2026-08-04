@@ -9,12 +9,20 @@ const productSchema = z.object({
   description: z.string().optional().nullable(),
   shortDesc: z.string().optional().nullable(),
   price: z.number().min(0, "Fiyat 0 veya üzeri olmalı"),
+  salePrice: z.number().min(0).optional().nullable(),
   image: z.string().nullable().optional(),
+  nightImage: z.string().nullable().optional(),
   images: z.string().optional(),
   specs: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
   inStock: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  badgeNew: z.boolean().optional(),
+  badgeBestseller: z.boolean().optional(),
+  badgeSale: z.boolean().optional(),
+  shippingLabel: z.string().max(120).optional().nullable(),
+  campaignEndsAt: z.string().optional().nullable(),
   categoryId: z.string().min(1, "Kategori seçin"),
 });
 
@@ -55,7 +63,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const product = await prisma.product.create({ data });
+    const { campaignEndsAt, ...rest } = data;
+    const product = await prisma.product.create({
+      data: {
+        ...rest,
+        campaignEndsAt:
+          campaignEndsAt && campaignEndsAt.length > 0
+            ? new Date(campaignEndsAt)
+            : null,
+      },
+    });
     return NextResponse.json(product);
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -5,6 +5,7 @@ import { getProjectBySlug } from "@/lib/catalog";
 import { parseJsonArray } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { ProjectGallery } from "@/components/projects/ProjectGallery";
+import { BeforeAfterSlider } from "@/components/projects/BeforeAfterSlider";
 import { getContentMap } from "@/lib/site-content";
 import { EditableText } from "@/components/editor/EditableText";
 import { CatalogAdminHint } from "@/components/editor/CatalogAdminHint";
@@ -55,6 +56,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     map.project_gallery_hint ||
     "Bu projede {count} görsel · oklarla veya alttaki küçük resimlerle gezinin; birkaç saniyede otomatik kayar.";
   const galleryHint = hintTemplate.replace("{count}", String(images.length));
+  const afterUrl = project.image || images[0] || null;
+  const showBeforeAfter = Boolean(project.imageBefore && afterUrl);
 
   return (
     <section className="py-16 lg:py-24">
@@ -66,7 +69,20 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         />
 
         <div className="grid lg:grid-cols-2 gap-10 items-start">
-          <ProjectGallery title={project.title} images={images} />
+          <div className="space-y-4">
+            {showBeforeAfter && project.imageBefore && afterUrl ? (
+              <BeforeAfterSlider
+                beforeUrl={project.imageBefore}
+                afterUrl={afterUrl}
+                alt={project.title}
+              />
+            ) : (
+              <ProjectGallery title={project.title} images={images} />
+            )}
+            {showBeforeAfter && images.length > 1 ? (
+              <ProjectGallery title={project.title} images={images} />
+            ) : null}
+          </div>
 
           <div>
             <EditableText

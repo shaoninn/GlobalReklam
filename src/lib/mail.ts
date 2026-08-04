@@ -119,3 +119,123 @@ export async function sendOrderConfirmation(
 
   return { sent: false, reason: "no-mail-provider" };
 }
+
+async function deliverMail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<{ sent: boolean; reason?: string }> {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    const from = process.env.MAIL_FROM || "Global Reklam <onboarding@resend.dev>";
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [opts.to],
+        subject: opts.subject,
+        html: opts.html,
+        text: opts.text,
+      }),
+    });
+    if (!res.ok) {
+      console.error("Resend error:", await res.text());
+      return { sent: false, reason: "resend-failed" };
+    }
+    return { sent: true };
+  }
+
+  const smtpUrl = process.env.SMTP_URL;
+  if (smtpUrl) {
+    try {
+      const nodemailer = await import("nodemailer");
+      const transporter = nodemailer.createTransport(smtpUrl);
+      await transporter.sendMail({
+        from: process.env.MAIL_FROM || "noreply@globalreklam.com",
+        to: opts.to,
+        subject: opts.subject,
+        html: opts.html,
+        text: opts.text,
+      });
+      return { sent: true };
+    } catch (e) {
+      console.error("SMTP error:", e);
+      return { sent: false, reason: "smtp-failed" };
+    }
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.info(`[mail:dev] ${opts.subject} → ${opts.to}`);
+    return { sent: false, reason: "no-mail-provider" };
+  }
+  return { sent: false, reason: "no-mail-provider" };
+}
+
+/** Atölye / üretici özeti — SiteSetting manufacturer_email veya MAIL_MANUFACTURER */
+export async function sendManufacturerBrief(order: {
+  orderNo: string;
+  name: string;
+  phone: string;
+  total: number;
+  note?: string | null;
+  productionNotes?: string | null;
+  items: Array<{
+    productName: string;
+    quantity: number;
+    widthCm?: number | null;
+    heightCm?: number | null;
+    color?: string | null;
+    optionsNote?: string | null;
+    lineTotal: number;
+  }>;
+}): Promise<{ sent: boolean; reason?: string }> {
+  const { prisma } = await import("@/lib/db");
+  const row = await prisma.siteSetting.findUnique({
+    where: { key: "manufacturer_email" },
+  });
+  const to =
+    row?.value?.trim() ||
+    process.env.MAIL_MANUFACTURER?.trim() ||
+    process.env.MAIL_FROM_NOTIFY?.trim();
+  if (!to) return { sent: false, reason: "no-manufacturer-email" };
+
+  const lines = order.items
+    .map((i) => {
+      const dims = [
+        i.widthCm != null ? `en ${i.widthCm}` : null,
+        i.heightCm != null ? `boy ${i.heightCm}` : null,
+        i.color || null,
+      ]
+        .filter(Boolean)
+        .join(", ");
+      return `• ${i.productName} x${i.quantity}${dims ? ` (${dims})` : ""}${
+        i.optionsNote ? ` | ${i.optionsNote}` : ""
+      }`;
+    })
+    .join("\n");
+
+  const subject = `[Üretim] ${order.orderNo} — ${order.name}`;
+  const text = `Yeni teklif/üretim kartı\n\n${order.orderNo}\nMüşteri: ${order.name} / ${order.phone}\nToplam: ${formatPrice(order.total)}\nNot: ${order.note || "-"}\n\nKalemler:\n${lines}`;
+  const html = `<pre style="font-family:sans-serif;white-space:pre-wrap">${text}</pre>`;
+
+  return deliverMail({ to, subject, html, text });
+}
+
+export async function sendCrmReminder(order: {
+  orderNo: string;
+  name: string;
+  phone: string;
+  email?: string | null;
+  total: number;
+}): Promise<{ sent: boolean; reason?: string }> {
+  if (!order.email) return { sent: false, reason: "no-email" };
+  const subject = `Teklifiniz bekliyor — ${order.orderNo}`;
+  const text = `Merhaba ${order.name}, ${order.orderNo} numaralı teklif talebiniz için ölçü/onay görüşmesi yapmak isteriz. Tahmini toplam: ${formatPrice(order.total)}. Telefon: ${order.phone}`;
+  const html = `<p>${text}</p><p>Global Reklam</p>`;
+  return deliverMail({ to: order.email, subject, html, text });
+}

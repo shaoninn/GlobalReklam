@@ -3,7 +3,7 @@ import { SiteLink } from "@/components/ui/SiteLink";
 import { prisma } from "@/lib/db";
 import { getCategoryBySlug } from "@/lib/catalog";
 import { categoryTitleFromSlug } from "@/lib/catalog-fallback";
-import { ProductCard } from "@/components/shop/ProductCard";
+import { CatalogProductGrid } from "@/components/shop/CatalogProductGrid";
 import { EditableCategoryField } from "@/components/editor/EditableCategoryField";
 import { CatalogAdminHint } from "@/components/editor/CatalogAdminHint";
 
@@ -11,7 +11,6 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ sort?: string }>;
 }
 
 /** No DB in metadata — cuts parallel pool pressure with page render. */
@@ -25,26 +24,18 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function CategoryPage({ params, searchParams }: Props) {
+export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
-  const { sort } = await searchParams;
 
   const category = await getCategoryBySlug(slug);
   if (!category || !category.isActive) notFound();
-
-  const orderBy =
-    sort === "price-asc"
-      ? { price: "asc" as const }
-      : sort === "price-desc"
-        ? { price: "desc" as const }
-        : { sortOrder: "asc" as const };
 
   const products = await (async () => {
     if (category.id.startsWith("fallback-")) return [];
     try {
       return await prisma.product.findMany({
         where: { categoryId: category.id, isActive: true },
-        orderBy,
+        orderBy: { sortOrder: "asc" },
         include: { category: true },
       });
     } catch (error) {
@@ -76,66 +67,30 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           adminLabel="Admin → Ürünler"
         />
 
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <EditableCategoryField
-              categoryId={category.id}
-              slug={category.slug}
-              name={category.name}
-              description={desc}
-              field="name"
-              as="h1"
-              block
-              className="font-display text-3xl sm:text-4xl font-bold text-white mb-2"
-              help="Kategori adı (ürün fiyatları Admin → Ürünler’de)"
-            />
-            <EditableCategoryField
-              categoryId={category.id}
-              slug={category.slug}
-              name={category.name}
-              description={desc}
-              field="description"
-              as="p"
-              block
-              multiline
-              className="text-muted max-w-2xl"
-              help="Kategori sayfası açıklama metni"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">Sırala:</span>
-            <SiteLink
-              href={`/hizmetler/${slug}`}
-              className={`text-xs px-3 py-1.5 border ${
-                !sort
-                  ? "border-orange text-orange"
-                  : "border-border text-muted hover:text-orange"
-              }`}
-            >
-              Varsayılan
-            </SiteLink>
-            <SiteLink
-              href={`/hizmetler/${slug}?sort=price-asc`}
-              className={`text-xs px-3 py-1.5 border ${
-                sort === "price-asc"
-                  ? "border-orange text-orange"
-                  : "border-border text-muted hover:text-orange"
-              }`}
-            >
-              Fiyat ↑
-            </SiteLink>
-            <SiteLink
-              href={`/hizmetler/${slug}?sort=price-desc`}
-              className={`text-xs px-3 py-1.5 border ${
-                sort === "price-desc"
-                  ? "border-orange text-orange"
-                  : "border-border text-muted hover:text-orange"
-              }`}
-            >
-              Fiyat ↓
-            </SiteLink>
-          </div>
+        <div className="mb-8">
+          <EditableCategoryField
+            categoryId={category.id}
+            slug={category.slug}
+            name={category.name}
+            description={desc}
+            field="name"
+            as="h1"
+            block
+            className="font-display text-3xl sm:text-4xl font-bold text-white mb-2"
+            help="Kategori adı (ürün fiyatları Admin → Ürünler’de)"
+          />
+          <EditableCategoryField
+            categoryId={category.id}
+            slug={category.slug}
+            name={category.name}
+            description={desc}
+            field="description"
+            as="p"
+            block
+            multiline
+            className="text-muted max-w-2xl"
+            help="Kategori sayfası açıklama metni"
+          />
         </div>
 
         {products.length === 0 ? (
@@ -149,11 +104,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             </SiteLink>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <CatalogProductGrid products={products} />
         )}
       </div>
     </section>

@@ -4,12 +4,15 @@ import { SiteLink } from "@/components/ui/SiteLink";
 import { prisma } from "@/lib/db";
 import { memoryCache } from "@/lib/memory-cache";
 import { formatPrice, parseJsonArray, parseJsonObject } from "@/lib/utils";
-import { AddToCartButton } from "@/components/shop/AddToCartButton";
+import { ProductConfigurator } from "@/components/shop/ProductConfigurator";
+import { SimilarProducts } from "@/components/shop/SimilarProducts";
+import { TrackProductView } from "@/components/shop/TrackProductView";
 import { ProjectGallery } from "@/components/projects/ProjectGallery";
 import { productJsonLd } from "@/lib/seo";
 import type { ProductSpecs } from "@/types";
-import { MapPin, Check } from "lucide-react";
+import { MapPin, Check, Truck } from "lucide-react";
 import { CatalogAdminHint } from "@/components/editor/CatalogAdminHint";
+import { ProductBadges } from "@/components/shop/ProductBadges";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -60,8 +63,36 @@ export default async function ProductPage({ params }: Props) {
         ? [product.image]
         : [];
 
+  const isNeon =
+    product.category?.slug?.includes("neon") ||
+    product.slug.includes("neon") ||
+    false;
+
+  const unitPrice =
+    product.badgeSale && product.salePrice != null
+      ? product.salePrice
+      : product.price;
+
+  const similar = await (async () => {
+    try {
+      return await prisma.product.findMany({
+        where: {
+          categoryId: product.categoryId,
+          isActive: true,
+          id: { not: product.id },
+        },
+        include: { category: true },
+        orderBy: { sortOrder: "asc" },
+        take: 4,
+      });
+    } catch {
+      return [];
+    }
+  })();
+
   return (
     <section className="py-16 lg:py-24">
+      <TrackProductView productId={product.id} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -100,7 +131,17 @@ export default async function ProductPage({ params }: Props) {
         />
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          <ProjectGallery title={product.name} images={images} />
+          <div className="relative">
+            <ProjectGallery title={product.name} images={images} />
+            <div className="absolute top-3 left-3 z-10 pointer-events-none">
+              <ProductBadges
+                badgeNew={product.badgeNew}
+                badgeBestseller={product.badgeBestseller}
+                badgeSale={product.badgeSale}
+                inStock={product.inStock}
+              />
+            </div>
+          </div>
 
           <div>
             {product.category && (
@@ -114,19 +155,35 @@ export default async function ProductPage({ params }: Props) {
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mt-2 mb-4">
               {product.name}
             </h1>
-            <p className="font-display text-3xl font-bold text-orange mb-2">
-              {formatPrice(product.price)}
-            </p>
+            <div className="mb-2 flex items-baseline gap-3">
+              <p className="font-display text-3xl font-bold text-orange">
+                {formatPrice(unitPrice)}
+              </p>
+              {product.badgeSale &&
+                product.salePrice != null &&
+                product.salePrice < product.price && (
+                  <p className="text-muted line-through text-lg">
+                    {formatPrice(product.price)}
+                  </p>
+                )}
+            </div>
             <p className="text-xs text-muted mb-6">
               Başlangıç / örnek fiyat — kesin teklif keşif sonrası verilir.
             </p>
+
+            {product.shippingLabel && (
+              <p className="flex items-center gap-2 text-sm text-muted mb-4">
+                <Truck size={16} className="text-orange" />
+                {product.shippingLabel}
+              </p>
+            )}
 
             {product.shortDesc && (
               <p className="text-muted mb-6">{product.shortDesc}</p>
             )}
 
             {Object.keys(specs).length > 0 && (
-              <div className="mb-6 p-4 bg-card border border-border">
+              <div className="mb-6 p-4 bg-card border border-border rounded-xl">
                 <h3 className="text-sm font-semibold text-white mb-3 uppercase tracking-wider">
                   Özellikler
                 </h3>
@@ -161,7 +218,7 @@ export default async function ProductPage({ params }: Props) {
               </div>
             </div>
 
-            <AddToCartButton product={product} />
+            <ProductConfigurator product={product} showNeon={isNeon} />
 
             {product.description && (
               <div className="mt-8 pt-8 border-t border-border">
@@ -175,6 +232,8 @@ export default async function ProductPage({ params }: Props) {
             )}
           </div>
         </div>
+
+        <SimilarProducts products={similar} />
       </div>
     </section>
   );

@@ -13,6 +13,7 @@ import {
   ImageUploadField,
 } from "@/components/admin/ImageUploadField";
 import { slugify } from "@/lib/utils";
+import { productSeoScore } from "@/lib/catalog-meta";
 
 interface CategoryOption {
   id: string;
@@ -28,12 +29,20 @@ interface ProductFormProps {
     description: string | null;
     shortDesc: string | null;
     price: number;
+    salePrice?: number | null;
     image: string | null;
+    nightImage?: string | null;
     images: string;
     specs: string;
     sortOrder: number;
     isActive: boolean;
     inStock: boolean;
+    isFeatured?: boolean;
+    badgeNew?: boolean;
+    badgeBestseller?: boolean;
+    badgeSale?: boolean;
+    shippingLabel?: string | null;
+    campaignEndsAt?: string | Date | null;
     categoryId: string;
   };
 }
@@ -57,11 +66,21 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
     initial?.categoryId || categories[0]?.id || ""
   );
   const [price, setPrice] = useState(String(initial?.price ?? 0));
+  const [salePrice, setSalePrice] = useState(
+    initial?.salePrice != null ? String(initial.salePrice) : ""
+  );
   const [sortOrder, setSortOrder] = useState(String(initial?.sortOrder ?? 0));
   const [shortDesc, setShortDesc] = useState(initial?.shortDesc || "");
   const [description, setDescription] = useState(initial?.description || "");
   const [image, setImage] = useState(initial?.image || "");
+  const [nightImage, setNightImage] = useState(initial?.nightImage || "");
   const [gallery, setGallery] = useState(() => parseImagesJson(initial?.images));
+  const [campaignEndsAt, setCampaignEndsAt] = useState(() => {
+    if (!initial?.campaignEndsAt) return "";
+    const d = new Date(initial.campaignEndsAt);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toISOString().slice(0, 16);
+  });
   const [specs, setSpecs] = useState(() => {
     try {
       return JSON.parse(initial?.specs || "{}") as Record<string, string>;
@@ -69,11 +88,29 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
       return {};
     }
   });
+  const [shippingLabel, setShippingLabel] = useState(
+    initial?.shippingLabel || ""
+  );
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [inStock, setInStock] = useState(initial?.inStock ?? true);
+  const [isFeatured, setIsFeatured] = useState(initial?.isFeatured ?? false);
+  const [badgeNew, setBadgeNew] = useState(initial?.badgeNew ?? false);
+  const [badgeBestseller, setBadgeBestseller] = useState(
+    initial?.badgeBestseller ?? false
+  );
+  const [badgeSale, setBadgeSale] = useState(initial?.badgeSale ?? false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const seo = productSeoScore({
+    name,
+    slug,
+    shortDesc,
+    description,
+    image,
+    specs: JSON.stringify(specs),
+  });
 
   function onNameChange(value: string) {
     setName(value);
@@ -92,14 +129,24 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
         slug,
         categoryId,
         price: Number(price) || 0,
+        salePrice: salePrice.trim() === "" ? null : Number(salePrice) || 0,
         sortOrder: Number(sortOrder) || 0,
         shortDesc,
         description,
         image: trimmedImage.length > 0 ? trimmedImage : null,
+        nightImage: nightImage.trim() || null,
         images: JSON.stringify(gallery.filter(Boolean)),
         specs: JSON.stringify(specs),
+        shippingLabel: shippingLabel.trim() || null,
+        campaignEndsAt: campaignEndsAt
+          ? new Date(campaignEndsAt).toISOString()
+          : null,
         isActive,
         inStock,
+        isFeatured,
+        badgeNew,
+        badgeBestseller,
+        badgeSale,
       };
 
       if (isEdit && initial) {
@@ -180,6 +227,23 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
           />
         </AdminField>
         <AdminField
+          label="İndirimli fiyat (₺)"
+          help="Kampanya rozeti açıksa bu fiyat gösterilir."
+        >
+          <input
+            className="admin-input"
+            type="number"
+            min={0}
+            step={1}
+            value={salePrice}
+            onChange={(e) => setSalePrice(e.target.value)}
+            placeholder="Opsiyonel"
+          />
+        </AdminField>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <AdminField
           label="Sıra numarası"
           help="Listede sıralama. Küçük sayı önce gelir (0, 1, 2…). Aynı kategoride ürünleri bu sayıya göre dizer."
         >
@@ -189,6 +253,14 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
             step={1}
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Kargo / teslimat etiketi" help="Kartlarda küçük satır.">
+          <input
+            className="admin-input"
+            value={shippingLabel}
+            onChange={(e) => setShippingLabel(e.target.value)}
+            placeholder="örn. 3-5 iş günü"
           />
         </AdminField>
       </div>
@@ -213,15 +285,48 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
         label="Ana görsel"
         value={image}
         onChange={setImage}
-        help="Liste ve ürün sayfasında görünen kapak fotoğrafı. Boş bırakılabilir."
+        help="Liste ve ürün sayfasında görünen kapak fotoğrafı. Mümkünse WebP kullanın (daha hızlı)."
+      />
+
+      <ImageUploadField
+        label="Gece görünümü görseli"
+        value={nightImage}
+        onChange={setNightImage}
+        help="Karttaki ay ikonu ile gece simülasyonu. Boşsa gündüz görseli karartılır."
       />
 
       <ImageGalleryField
         label="Galeri görselleri"
         value={gallery}
         onChange={setGallery}
-        help="Ek fotoğraflar. Birden fazla seçebilir veya tek tek ekleyebilirsiniz."
+        help="Ek fotoğraflar. WebP önerilir; arka plan kaldırma için Canva/remove.bg kullanabilirsiniz."
       />
+
+      <AdminField
+        label="Kampanya bitiş (indirim rozeti)"
+        help="Doluysa bu tarihten sonra indirimli fiyat uygulanmaz."
+      >
+        <input
+          type="datetime-local"
+          className="admin-input"
+          value={campaignEndsAt}
+          onChange={(e) => setCampaignEndsAt(e.target.value)}
+        />
+      </AdminField>
+
+      <div className="admin-card p-3 mb-4 border border-[#333]">
+        <p className="text-sm text-white mb-1">
+          SEO skoru:{" "}
+          <span className="text-orange font-bold">{seo.score}/100</span>
+        </p>
+        {seo.tips.length > 0 && (
+          <ul className="text-xs text-[#888] list-disc pl-4 space-y-0.5">
+            {seo.tips.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         {(
@@ -244,7 +349,7 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
         ))}
       </div>
 
-      <div className="flex gap-6 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6">
         <label className="flex items-center gap-2 text-sm text-[#ccc]">
           <input
             type="checkbox"
@@ -260,6 +365,38 @@ export function ProductForm({ categories, initial }: ProductFormProps) {
             onChange={(e) => setInStock(e.target.checked)}
           />
           Stokta var
+        </label>
+        <label className="flex items-center gap-2 text-sm text-[#ccc]">
+          <input
+            type="checkbox"
+            checked={isFeatured}
+            onChange={(e) => setIsFeatured(e.target.checked)}
+          />
+          Öne çıkan
+        </label>
+        <label className="flex items-center gap-2 text-sm text-[#ccc]">
+          <input
+            type="checkbox"
+            checked={badgeNew}
+            onChange={(e) => setBadgeNew(e.target.checked)}
+          />
+          Yeni
+        </label>
+        <label className="flex items-center gap-2 text-sm text-[#ccc]">
+          <input
+            type="checkbox"
+            checked={badgeBestseller}
+            onChange={(e) => setBadgeBestseller(e.target.checked)}
+          />
+          Çok satan
+        </label>
+        <label className="flex items-center gap-2 text-sm text-[#ccc]">
+          <input
+            type="checkbox"
+            checked={badgeSale}
+            onChange={(e) => setBadgeSale(e.target.checked)}
+          />
+          İndirim rozeti
         </label>
       </div>
 

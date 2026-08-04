@@ -3,9 +3,11 @@ import {
   getActiveCategories,
   getFeaturedProducts,
   getFeaturedProjects,
+  getRecentProductPool,
 } from "@/lib/catalog";
 import { getSiteSettings } from "@/lib/site";
 import { buildStats, buildValueProps } from "@/lib/page-content";
+import { INSTAGRAM } from "@/lib/constants";
 
 const HOME_KEYS = [
   "hero_title",
@@ -89,13 +91,15 @@ const DEFAULT_HERO_SUBTITLE = "PROFESYONEL TABELA ÇÖZÜMLERİ";
 
 export async function loadHomePageData() {
   try {
-    const [map, projects, settings, categories, products] = await Promise.all([
-      getContentMap([...HOME_KEYS]),
-      getFeaturedProjects(),
-      getSiteSettings(),
-      getActiveCategories(),
-      getFeaturedProducts(),
-    ]);
+    const [map, projects, settings, categories, products, recentPool] =
+      await Promise.all([
+        getContentMap([...HOME_KEYS]),
+        getFeaturedProjects(),
+        getSiteSettings(),
+        getActiveCategories(),
+        getFeaturedProducts(),
+        getRecentProductPool(),
+      ]);
 
     const processSteps = [1, 2, 3, 4].map((n) => ({
       title: map[`process_${n}_title`] || "",
@@ -141,7 +145,9 @@ export async function loadHomePageData() {
       projects,
       categories,
       products,
+      recentPool,
       googleReviewsUrl: settings.googleReviewsUrl,
+      instagramUrl: settings.instagram || INSTAGRAM,
     };
   } catch (error) {
     console.error("loadHomePageData failed:", error);
@@ -170,7 +176,9 @@ export async function loadHomePageData() {
       projects: [],
       categories: [],
       products: [],
+      recentPool: [],
       googleReviewsUrl: "",
+      instagramUrl: INSTAGRAM,
     };
   }
 }

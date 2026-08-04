@@ -22,6 +22,7 @@ interface ProjectFormProps {
     slug: string;
     description: string | null;
     image: string | null;
+    imageBefore?: string | null;
     images?: string;
     location: string | null;
     isActive: boolean;
@@ -46,6 +47,7 @@ export function ProjectForm({ categories, initial }: ProjectFormProps) {
   const [slug, setSlug] = useState(initial?.slug || "");
   const [description, setDescription] = useState(initial?.description || "");
   const [image, setImage] = useState(initial?.image || "");
+  const [imageBefore, setImageBefore] = useState(initial?.imageBefore || "");
   const [gallery, setGallery] = useState(() =>
     parseGallery(initial?.images, initial?.image)
   );
@@ -67,6 +69,7 @@ export function ProjectForm({ categories, initial }: ProjectFormProps) {
         slug: slug || slugify(title),
         description,
         image: cover,
+        imageBefore: imageBefore.trim() || null,
         images: JSON.stringify(gallery.length ? gallery : cover ? [cover] : []),
         location: location || null,
         categoryId: categoryId || null,
@@ -130,7 +133,14 @@ export function ProjectForm({ categories, initial }: ProjectFormProps) {
         label="Kapak görseli"
         value={image}
         onChange={setImage}
-        help="Liste ve ana sayfada görünen ana fotoğraf."
+        help="Liste ve ana sayfada görünen ana fotoğraf (sonrası)."
+      />
+
+      <ImageUploadField
+        label="Öncesi görseli (before/after)"
+        value={imageBefore}
+        onChange={setImageBefore}
+        help="Doldurulursa proje sayfasında sürgülü önce/sonra karşılaştırma gösterilir."
       />
 
       <ImageGalleryField

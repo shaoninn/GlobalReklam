@@ -9,6 +9,7 @@ const projectSchema = z.object({
   slug: z.string().min(2),
   description: z.string().optional().nullable(),
   image: z.string().optional().nullable(),
+  imageBefore: z.string().optional().nullable(),
   images: z.string().optional(),
   location: z.string().optional().nullable(),
   sortOrder: z.number().int().optional(),
