@@ -53,7 +53,11 @@ export async function HomePageView() {
       <WhyUsSection projects={data.projects} stats={data.stats} />
       <FeatureBar />
       <ShippingBanner title={data.shippingBannerTitle} />
-      <InstagramStrip instagramUrl={data.instagramUrl} />
+      <InstagramStrip
+        instagramUrl={data.instagramUrl}
+        posts={data.instagramPosts}
+        live={data.instagramLive}
+      />
       <ProcessSteps
         sectionTitle={data.processTitle}
         sectionDesc={data.processDesc}

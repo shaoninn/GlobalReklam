@@ -29,16 +29,35 @@ export const LEGAL_LINKS = [
   { href: "/cerez-politikasi", label: "Çerez Politikası" },
 ] as const;
 
+/** Üst barda her zaman görünen ana linkler (sıra önemli). */
+export const PRIMARY_NAV_HREFS = [
+  "/",
+  "/hizmetler",
+  "/sektor",
+  "/hakkimizda",
+  "/iletisim",
+  "/neon-tasarla",
+] as const;
+
+export const PRIMARY_NAV_LINKS = [
+  { href: "/", label: "ANA SAYFA" },
+  { href: "/hizmetler", label: "KATEGORİLER" },
+  { href: "/sektor", label: "SEKTÖRLER" },
+  { href: "/hakkimizda", label: "HAKKIMIZDA" },
+  { href: "/iletisim", label: "İLETİŞİM" },
+  { href: "/neon-tasarla", label: "NEON TASARLA" },
+] as const;
+
 export const NAV_LINKS = [
   { href: "/", label: "ANA SAYFA" },
   { href: "/hizmetler", label: "KATEGORİLER" },
-  { href: "/neon-tasarla", label: "NEON TASARLA" },
   { href: "/sektor", label: "SEKTÖRLER" },
-  { href: "/projeler", label: "REFERANSLAR" },
   { href: "/hakkimizda", label: "HAKKIMIZDA" },
+  { href: "/iletisim", label: "İLETİŞİM" },
+  { href: "/neon-tasarla", label: "NEON TASARLA" },
+  { href: "/projeler", label: "REFERANSLAR" },
   { href: "/blog", label: "BLOG" },
   { href: "/tekliflerim", label: "TEKLİFLERİM" },
-  { href: "/iletisim", label: "İLETİŞİM" },
 ] as const;
 
 export const VALUE_PROPS = [

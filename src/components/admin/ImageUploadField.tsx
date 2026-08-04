@@ -11,18 +11,31 @@ import {
 import { ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
-const ACCEPT_LABEL = "JPG, PNG, WEBP veya GIF — en fazla 8 MB";
+const ACCEPT_LABEL = "JPG, PNG, WEBP veya GIF — en fazla 8 MB · otomatik WebP";
 
-async function uploadFile(file: File): Promise<string> {
+async function uploadFile(
+  file: File,
+  opts: { removeBg?: boolean } = {}
+): Promise<string> {
   const form = new FormData();
   form.append("file", file);
   form.append("alt", file.name);
+  if (opts.removeBg) form.append("removeBg", "1");
   const res = await fetch("/api/upload", { method: "POST", body: form });
   const data = (await res.json()) as { url?: string; error?: string };
   if (!res.ok || !data.url) {
     throw new Error(data.error || "Görsel yüklenemedi");
   }
   return data.url;
+}
+
+/** Client-side bg removal (WASM) — no API key; first run downloads model. */
+async function clientRemoveBackground(file: File): Promise<File> {
+  const { removeBackground } = await import("@imgly/background-removal");
+  const blob = await removeBackground(file);
+  return new File([blob], file.name.replace(/\.\w+$/, "") + "-nobg.png", {
+    type: "image/png",
+  });
 }
 
 function DropZone({
@@ -95,7 +108,7 @@ function DropZone({
       )}
       <span className="text-sm font-semibold text-white">
         {disabled
-          ? "Yükleniyor…"
+          ? "İşleniyor…"
           : dragOver
             ? "Bırakın, yüklensin"
             : "Görseli buraya sürükleyin veya tıklayıp seçin"}
@@ -103,6 +116,25 @@ function DropZone({
       <span className="text-xs text-[#888]">{ACCEPT_LABEL}</span>
     </label>
   );
+}
+
+async function prepareAndUpload(
+  file: File,
+  removeBg: boolean
+): Promise<string> {
+  let toSend = file;
+  let serverRemoveBg = false;
+
+  if (removeBg) {
+    try {
+      toSend = await clientRemoveBackground(file);
+    } catch (error) {
+      console.warn("[bg-removal] client failed, trying server:", error);
+      serverRemoveBg = true;
+    }
+  }
+
+  return uploadFile(toSend, { removeBg: serverRemoveBg });
 }
 
 /** Tek görsel — sürükle-bırak veya tıkla-seç. */
@@ -120,6 +152,7 @@ export function ImageUploadField({
   const inputId = useId();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [removeBg, setRemoveBg] = useState(false);
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -128,7 +161,7 @@ export function ImageUploadField({
       setUploading(true);
       setError(null);
       try {
-        const url = await uploadFile(file);
+        const url = await prepareAndUpload(file, removeBg);
         onChange(url);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Yükleme hatası");
@@ -136,7 +169,7 @@ export function ImageUploadField({
         setUploading(false);
       }
     },
-    [onChange]
+    [onChange, removeBg]
   );
 
   return (
@@ -160,6 +193,14 @@ export function ImageUploadField({
           </button>
         </div>
       ) : null}
+      <label className="flex items-center gap-2 text-xs text-[#aaa] mb-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={removeBg}
+          onChange={(e) => setRemoveBg(e.target.checked)}
+        />
+        Arka planı kaldır (cihazda / Remove.bg)
+      </label>
       <DropZone
         disabled={uploading}
         multiple={false}
@@ -167,6 +208,12 @@ export function ImageUploadField({
         onFiles={handleFiles}
       />
       {help && !error && <p className="admin-help">{help}</p>}
+      {!help && !error && (
+        <p className="admin-help">
+          Sunucu görseli otomatik WebP’ye çevirir. Arka plan kaldırma ilk
+          kullanımda model indirebilir.
+        </p>
+      )}
       {error && <p className="admin-error">{error}</p>}
     </div>
   );
@@ -187,6 +234,7 @@ export function ImageGalleryField({
   const inputId = useId();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [removeBg, setRemoveBg] = useState(false);
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -197,7 +245,7 @@ export function ImageGalleryField({
       try {
         const urls: string[] = [];
         for (const file of list) {
-          urls.push(await uploadFile(file));
+          urls.push(await prepareAndUpload(file, removeBg));
         }
         onChange([...value, ...urls]);
       } catch (err) {
@@ -206,7 +254,7 @@ export function ImageGalleryField({
         setUploading(false);
       }
     },
-    [onChange, value]
+    [onChange, value, removeBg]
   );
 
   function removeAt(index: number) {
@@ -241,6 +289,14 @@ export function ImageGalleryField({
           ))}
         </div>
       )}
+      <label className="flex items-center gap-2 text-xs text-[#aaa] mb-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={removeBg}
+          onChange={(e) => setRemoveBg(e.target.checked)}
+        />
+        Arka planı kaldır
+      </label>
       <DropZone
         disabled={uploading}
         multiple

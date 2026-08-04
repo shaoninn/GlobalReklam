@@ -52,7 +52,7 @@ export function NeonScene3D({ text, color, fontFamily }: NeonScene3DProps) {
         </div>
       </div>
       <p className="absolute bottom-3 left-3 right-3 text-[10px] text-muted text-center">
-        3D duvar simülasyonu · gerçek AR kamera gerektirmez
+        CSS 3D duvar · canlı kamera için “Kamera AR” sekmesi
       </p>
     </div>
   );

@@ -6,7 +6,8 @@ import { Footer } from "@/components/layout/Footer";
 import { StoreProvider } from "@/store/StoreProvider";
 import { getNavLinks, getSiteSettings } from "@/lib/site";
 import { getContentMap } from "@/lib/site-content";
-import { mapNavToEditor } from "@/lib/editor-href";
+import { mapNavToEditor, toEditorHref } from "@/lib/editor-href";
+import { getActiveCategories } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,19 +22,28 @@ export default async function EditorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [settings, navLinks, content] = await Promise.all([
+  const [settings, navLinks, content, categories] = await Promise.all([
     getSiteSettings(),
     getNavLinks(),
     getContentMap(["footer_blurb"]),
+    getActiveCategories(),
   ]);
   const editorNav = mapNavToEditor(navLinks);
+  const menuCategories = categories.map((c) => ({
+    href: toEditorHref(`/hizmetler/${c.slug}`),
+    label: c.name,
+  }));
 
   return (
     <EditorProvider enabled>
       <EditorChrome>
         <StoreProvider>
           <div className="[&_header]:!top-14 [&_header]:z-[60]">
-            <Header settings={settings} navLinks={editorNav} />
+            <Header
+              settings={settings}
+              navLinks={editorNav}
+              categories={menuCategories}
+            />
             <main
               id="main-content"
               className="min-h-screen pt-[8.5rem] sm:pt-[9rem] lg:pt-[9.5rem] pb-24 md:pb-8"

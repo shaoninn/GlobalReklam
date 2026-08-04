@@ -36,10 +36,10 @@ const VALUE_DEFS = [
 ] as const;
 
 const DEFAULT_ABOUT_IMAGES = [
-  "/images/about/about-1.png",
-  "/images/about/about-2.png",
-  "/images/about/about-3.png",
-  "/images/about/about-4.png",
+  "/images/portfolio/cmk-ecu-completed.png",
+  "/images/portfolio/acity-avm-tabela.png",
+  "/images/portfolio/kurye-garaji-germe.png",
+  "/images/portfolio/gulbag-totem-3.png",
 ];
 
 export async function loadAboutPageData(): Promise<AboutPageData> {

@@ -14,6 +14,16 @@ const FIELDS = [
   { key: "email", label: "E-posta" },
   { key: "address", label: "Adres" },
   { key: "instagram", label: "Instagram URL" },
+  {
+    key: "instagram_access_token",
+    label: "Instagram Access Token",
+    help: "Meta Graph / Instagram Basic Display long-lived token. Canlı feed için.",
+  },
+  {
+    key: "instagram_user_id",
+    label: "Instagram Business User ID",
+    help: "Graph API için IG kullanıcı ID (opsiyonel; boşsa /me/media denenir).",
+  },
   { key: "google_reviews_url", label: "Google işletme / yorum linki", help: "Örn: share.google/... veya maps profil linki." },
   { key: "work_hours_weekdays", label: "Hafta içi çalışma saati" },
   { key: "work_hours_sunday", label: "Pazar" },

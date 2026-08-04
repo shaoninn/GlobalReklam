@@ -4,6 +4,7 @@ import { FloatingContact } from "@/components/layout/FloatingContact";
 import { StoreProvider } from "@/store/StoreProvider";
 import { getNavLinks, getSiteSettings } from "@/lib/site";
 import { getContentMap } from "@/lib/site-content";
+import { getActiveCategories } from "@/lib/catalog";
 
 /** Build sırasında DB şart değil; istek anında çeker. */
 export const dynamic = "force-dynamic";
@@ -15,11 +16,17 @@ export default async function SiteLayout({
   children: React.ReactNode;
 }) {
   // Parallel OK with pool≥2; both hit 60s memory cache after first warm.
-  const [settings, navLinks, content] = await Promise.all([
+  const [settings, navLinks, content, categories] = await Promise.all([
     getSiteSettings(),
     getNavLinks(),
     getContentMap(["footer_blurb"]),
+    getActiveCategories(),
   ]);
+
+  const menuCategories = categories.map((c) => ({
+    href: `/hizmetler/${c.slug}`,
+    label: c.name,
+  }));
 
   return (
     <StoreProvider>
@@ -29,7 +36,11 @@ export default async function SiteLayout({
       >
         İçeriğe geç
       </a>
-      <Header settings={settings} navLinks={navLinks} />
+      <Header
+        settings={settings}
+        navLinks={navLinks}
+        categories={menuCategories}
+      />
       <main id="main-content" className="min-h-screen pt-[5.5rem] sm:pt-[6rem] pb-24 md:pb-8">
         {children}
       </main>

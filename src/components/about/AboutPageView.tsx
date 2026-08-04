@@ -6,10 +6,10 @@ import { EditableText } from "@/components/editor/EditableText";
 import { EditableImage } from "@/components/editor/EditableImage";
 
 const DEFAULT_IMAGES = [
-  "/images/about/about-1.png",
-  "/images/about/about-2.png",
-  "/images/about/about-3.png",
-  "/images/about/about-4.png",
+  "/images/portfolio/cmk-ecu-completed.png",
+  "/images/portfolio/acity-avm-tabela.png",
+  "/images/portfolio/kurye-garaji-germe.png",
+  "/images/portfolio/gulbag-totem-3.png",
 ];
 
 const VALUE_ICONS = [Package, Clock, Users, Sparkles] as const;

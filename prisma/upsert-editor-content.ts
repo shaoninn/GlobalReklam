@@ -11,7 +11,7 @@ const keys: { key: string; title: string; content: string }[] = [
   {
     key: "hero_image",
     title: "Hero Görsel",
-    content: "/images/hero/hero-bg.jpg",
+    content: "/images/hero/hero-global.png",
   },
   {
     key: "services_section_title",
@@ -103,22 +103,22 @@ const keys: { key: string; title: string; content: string }[] = [
   {
     key: "about_image_1",
     title: "Hakkımızda Görsel 1",
-    content: "/images/about/about-1.png",
+    content: "/images/portfolio/cmk-ecu-completed.png",
   },
   {
     key: "about_image_2",
     title: "Hakkımızda Görsel 2",
-    content: "/images/about/about-2.png",
+    content: "/images/portfolio/acity-avm-tabela.png",
   },
   {
     key: "about_image_3",
     title: "Hakkımızda Görsel 3",
-    content: "/images/about/about-3.png",
+    content: "/images/portfolio/kurye-garaji-germe.png",
   },
   {
     key: "about_image_4",
     title: "Hakkımızda Görsel 4",
-    content: "/images/about/about-4.png",
+    content: "/images/portfolio/gulbag-totem-3.png",
   },
   {
     key: "contact_eyebrow",

@@ -14,7 +14,7 @@ interface HeroProps {
   valueProps?: ValuePropItem[];
 }
 
-const DEFAULT_HERO = "/images/hero/hero-global.jpg";
+const DEFAULT_HERO = "/images/hero/hero-global.png";
 const DEFAULT_BODY =
   "CNC kesim, neon LED, kutu harf ve dijital baskı ile markanızı Antalya'da görünür kılıyoruz. Keşiften montaja tek ekip.";
 

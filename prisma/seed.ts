@@ -96,7 +96,7 @@ const siteContent = [
   {
     key: "hero_image",
     title: "Hero Görsel",
-    content: "/images/hero/hero-global.jpg",
+    content: "/images/hero/hero-global.png",
   },
   {
     key: "about_intro",
@@ -252,11 +252,6 @@ const siteContent = [
   { key: "stat_4_value", title: "İstatistik 4 Değer", content: "50+" },
   { key: "stat_4_label", title: "İstatistik 4 Etiket", content: "Ürün Çeşidi" },
   {
-    key: "hero_image",
-    title: "Hero Görsel",
-    content: "/images/hero/hero-bg.jpg",
-  },
-  {
     key: "footer_blurb",
     title: "Footer Tanıtım",
     content:
@@ -270,22 +265,22 @@ const siteContent = [
   {
     key: "about_image_1",
     title: "Hakkımızda Görsel 1",
-    content: "/images/about/about-1.png",
+    content: "/images/portfolio/cmk-ecu-completed.png",
   },
   {
     key: "about_image_2",
     title: "Hakkımızda Görsel 2",
-    content: "/images/about/about-2.png",
+    content: "/images/portfolio/acity-avm-tabela.png",
   },
   {
     key: "about_image_3",
     title: "Hakkımızda Görsel 3",
-    content: "/images/about/about-3.png",
+    content: "/images/portfolio/kurye-garaji-germe.png",
   },
   {
     key: "about_image_4",
     title: "Hakkımızda Görsel 4",
-    content: "/images/about/about-4.png",
+    content: "/images/portfolio/gulbag-totem-3.png",
   },
   {
     key: "contact_eyebrow",
@@ -668,9 +663,9 @@ async function main() {
   });
 
   const blogImages = [
-    "/images/projects/work-14.png",
-    "/images/projects/work-18.png",
-    "/images/projects/work-29.png",
+    "/images/portfolio/cmk-ecu-completed.png",
+    "/images/portfolio/gulbag-totem-3.png",
+    "/images/portfolio/arac-1.png",
   ];
 
   await prisma.blogPost.createMany({

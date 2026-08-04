@@ -14,6 +14,7 @@ import {
 } from "@/lib/price-formula";
 import { NeonPreview } from "@/components/shop/NeonPreview";
 import { NeonScene3D } from "@/components/shop/NeonScene3D";
+import { NeonCameraAR } from "@/components/shop/NeonCameraAR";
 
 const FONTS = [
   { id: "script", label: "Script", family: "'Segoe Script', 'Brush Script MT', cursive" },
@@ -57,7 +58,7 @@ export function NeonBuilderStudio({
   const [presetId, setPresetId] = useState<string>("m");
   const [backboard, setBackboard] =
     useState<(typeof BACKBOARDS)[number]["id"]>("acrylic");
-  const [view, setView] = useState<"flat" | "3d">("flat");
+  const [view, setView] = useState<"flat" | "3d" | "ar">("flat");
   const [added, setAdded] = useState(false);
 
   const preset = SIZE_PRESETS.find((p) => p.id === presetId) || SIZE_PRESETS[1]!;
@@ -115,7 +116,7 @@ export function NeonBuilderStudio({
   return (
     <div className="grid lg:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setView("flat")}
@@ -136,7 +137,18 @@ export function NeonBuilderStudio({
                 : "border-border text-muted"
             }`}
           >
-            3D / AR hissi
+            3D duvar
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("ar")}
+            className={`text-xs px-3 py-1.5 rounded-lg border ${
+              view === "ar"
+                ? "border-orange text-orange"
+                : "border-border text-muted"
+            }`}
+          >
+            Kamera AR
           </button>
         </div>
 
@@ -158,8 +170,14 @@ export function NeonBuilderStudio({
               fontFamily={font.family}
             />
           </div>
-        ) : (
+        ) : view === "3d" ? (
           <NeonScene3D text={text || "YAZI"} color={color} fontFamily={font.family} />
+        ) : (
+          <NeonCameraAR
+            text={text || "YAZI"}
+            color={color}
+            fontFamily={font.family}
+          />
         )}
 
         <p className="text-xs text-muted">

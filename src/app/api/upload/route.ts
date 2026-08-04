@@ -4,6 +4,7 @@ import { requireAdmin, isUnauthorized } from "@/lib/api";
 import { deleteUpload, storeUpload } from "@/lib/storage";
 import { writeAuditLog } from "@/lib/audit";
 import { clientIp } from "@/lib/rate-limit";
+import { processUploadImage } from "@/lib/image-process";
 
 const MAX_SIZE = 8 * 1024 * 1024;
 
@@ -88,8 +89,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${match.ext}`;
-    const stored = await storeUpload(safeName, bytes, match.mime);
+    const removeBg =
+      String(form.get("removeBg") || "") === "1" ||
+      String(form.get("removeBg") || "").toLowerCase() === "true";
+    const skipConvert =
+      String(form.get("skipConvert") || "") === "1" || match.mime === "image/gif";
+
+    let outBytes: Buffer = Buffer.from(bytes);
+    let outMime = match.mime;
+    let outExt = match.ext;
+    let converted = false;
+
+    if (!skipConvert) {
+      try {
+        const processed = await processUploadImage(bytes, { removeBg });
+        outBytes = Buffer.from(processed.bytes);
+        outMime = processed.mime;
+        outExt = processed.ext;
+        converted = true;
+      } catch (error) {
+        console.error("[upload] process failed, storing original:", error);
+        if (removeBg) {
+          const { removeBackground } = await import("@/lib/image-process");
+          const cut = await removeBackground(bytes);
+          if (cut) {
+            outBytes = Buffer.from(cut);
+            outMime = "image/png";
+            outExt = "png";
+          }
+        }
+      }
+    } else if (removeBg) {
+      const { removeBackground } = await import("@/lib/image-process");
+      const cut = await removeBackground(bytes);
+      if (cut) {
+        outBytes = Buffer.from(cut);
+        outMime = "image/png";
+        outExt = "png";
+      }
+    }
+
+    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${outExt}`;
+    const stored = await storeUpload(safeName, outBytes, outMime);
     const alt = String(form.get("alt") || file.name);
 
     const asset = await prisma.mediaAsset.create({
@@ -97,8 +138,8 @@ export async function POST(request: NextRequest) {
         filename: stored.key,
         url: stored.url,
         alt,
-        mimeType: match.mime,
-        size: file.size,
+        mimeType: outMime,
+        size: outBytes.length,
       },
     });
 
@@ -108,9 +149,14 @@ export async function POST(request: NextRequest) {
       entityId: asset.id,
       actor: auth,
       ip: clientIp(request),
+      meta: { converted, removeBg, mime: outMime },
     });
 
-    return NextResponse.json(asset);
+    return NextResponse.json({
+      ...asset,
+      converted,
+      removeBgApplied: removeBg,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Yükleme başarısız" }, { status: 500 });

@@ -8,6 +8,7 @@ import {
 import { getSiteSettings } from "@/lib/site";
 import { buildStats, buildValueProps } from "@/lib/page-content";
 import { INSTAGRAM } from "@/lib/constants";
+import { getInstagramFeed } from "@/lib/instagram";
 
 const HOME_KEYS = [
   "hero_title",
@@ -91,7 +92,7 @@ const DEFAULT_HERO_SUBTITLE = "PROFESYONEL TABELA ÇÖZÜMLERİ";
 
 export async function loadHomePageData() {
   try {
-    const [map, projects, settings, categories, products, recentPool] =
+    const [map, projects, settings, categories, products, recentPool, ig] =
       await Promise.all([
         getContentMap([...HOME_KEYS]),
         getFeaturedProjects(),
@@ -99,6 +100,7 @@ export async function loadHomePageData() {
         getActiveCategories(),
         getFeaturedProducts(),
         getRecentProductPool(),
+        getInstagramFeed(),
       ]);
 
     const processSteps = [1, 2, 3, 4].map((n) => ({
@@ -147,7 +149,9 @@ export async function loadHomePageData() {
       products,
       recentPool,
       googleReviewsUrl: settings.googleReviewsUrl,
-      instagramUrl: settings.instagram || INSTAGRAM,
+      instagramUrl: ig.profileUrl || settings.instagram || INSTAGRAM,
+      instagramPosts: ig.posts,
+      instagramLive: ig.live,
     };
   } catch (error) {
     console.error("loadHomePageData failed:", error);
@@ -179,6 +183,8 @@ export async function loadHomePageData() {
       recentPool: [],
       googleReviewsUrl: "",
       instagramUrl: INSTAGRAM,
+      instagramPosts: [],
+      instagramLive: false,
     };
   }
 }
