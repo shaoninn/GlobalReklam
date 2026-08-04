@@ -149,7 +149,7 @@ export function NeonCameraAR({ text, color, fontFamily }: NeonCameraARProps) {
             onPointerCancel={onPointerUp}
           >
             <p
-              className="text-2xl sm:text-4xl font-bold tracking-wide text-center whitespace-nowrap"
+              className="text-xl sm:text-4xl font-bold tracking-wide text-center break-words max-w-[min(90vw,28rem)] px-1"
               style={{
                 fontFamily: fontFamily || "inherit",
                 color: glow,

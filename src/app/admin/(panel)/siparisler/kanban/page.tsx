@@ -33,10 +33,12 @@ export default async function AdminOrdersKanbanPage() {
       >
         ← Liste görünümü
       </Link>
-      <h1 className="font-display text-3xl font-bold mb-2">Sipariş Panosu</h1>
+      <h1 className="font-display text-3xl font-bold mb-2">
+        Sipariş Panosu (Kanban)
+      </h1>
       <p className="text-sm text-[#888] mb-6">
-        Üretim aşamalarına göre teklifleri yönetin. İleri / geri ile aşama
-        değiştirin.
+        Teklif / siparişleri üretim aşamalarına göre sütunlarda yönetin. İleri
+        / geri ile aşama değiştirin.
       </p>
       <OrderKanban initialOrders={initial} />
     </div>

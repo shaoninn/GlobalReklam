@@ -63,7 +63,7 @@ export default async function EditorLayout({
             />
             <main
               id="main-content"
-              className="min-h-screen pt-[8.5rem] sm:pt-[9rem] lg:pt-[9.5rem] pb-24 md:pb-8"
+              className="min-h-screen pt-[9.5rem] sm:pt-[10rem] lg:pt-[10.5rem] pb-24 md:pb-8 overflow-x-clip"
             >
               {children}
             </main>

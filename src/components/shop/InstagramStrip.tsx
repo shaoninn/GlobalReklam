@@ -20,15 +20,15 @@ export function InstagramStrip({
   return (
     <section className="py-12 lg:py-16 border-y border-border bg-surface/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6 gap-3">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
+          <div className="min-w-0">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-white">
               @globalreklamm
             </h2>
             {hasLive ? (
               <p className="text-xs text-orange mt-1">Canlı Instagram feed</p>
             ) : (
-              <p className="text-xs text-muted mt-1">
+              <p className="text-xs text-muted mt-1 break-anywhere">
                 Canlı feed için Admin → Ayarlar’da Instagram token ekleyin
               </p>
             )}
@@ -37,7 +37,7 @@ export function InstagramStrip({
             href={instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-orange hover:underline shrink-0"
+            className="text-sm text-orange hover:underline shrink-0 self-start sm:self-auto"
           >
             Instagram’da aç
           </a>

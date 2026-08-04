@@ -11,7 +11,8 @@ import { CTASection } from "@/components/home/CTASection";
 import { InstagramStrip } from "@/components/shop/InstagramStrip";
 import { RecentlyViewed } from "@/components/shop/RecentlyViewed";
 import { loadHomePageData } from "@/lib/home-content";
-import { SiteLink } from "@/components/ui/SiteLink";
+import { HomeQuickLinks } from "@/components/home/HomeQuickLinks";
+import { HomeCategoriesSection } from "@/components/home/HomeCategoriesSection";
 
 export async function HomePageView() {
   const data = await loadHomePageData();
@@ -24,25 +25,19 @@ export async function HomePageView() {
         body={data.heroBody}
         image={data.heroImage}
         valueProps={data.valueProps}
+        styles={data.styles}
       />
-      <CategoriesGrid
+      <HomeCategoriesSection
         categories={data.categories}
         title={data.servicesTitle}
+        offset={data.sectionCategoriesOffset}
+        titleStyle={data.styles?.["services_section_title"]}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 mb-2 flex flex-wrap gap-4">
-        <SiteLink
-          href="/neon-tasarla"
-          className="text-sm text-orange hover:underline"
-        >
-          Neonunu canlı tasarla →
-        </SiteLink>
-        <SiteLink
-          href="/sektor"
-          className="text-sm text-orange hover:underline"
-        >
-          Sektörünüze özel çözümler →
-        </SiteLink>
-      </div>
+      <HomeQuickLinks
+        neonLabel={data.neonLinkLabel}
+        sectorLabel={data.sectorLinkLabel}
+        styles={data.styles}
+      />
       <FeaturedProducts
         products={data.products}
         title={data.featuredProductsTitle}
@@ -51,7 +46,11 @@ export async function HomePageView() {
         <RecentlyViewed allProducts={data.recentPool} />
       </div>
       <WhyUsSection projects={data.projects} stats={data.stats} />
-      <FeatureBar />
+      <FeatureBar
+        items={data.featureBarItems}
+        sectionOffset={data.sectionFeatureBarOffset}
+        styles={data.styles}
+      />
       <ShippingBanner title={data.shippingBannerTitle} />
       <InstagramStrip
         instagramUrl={data.instagramUrl}
@@ -61,16 +60,32 @@ export async function HomePageView() {
       <ProcessSteps
         sectionTitle={data.processTitle}
         sectionDesc={data.processDesc}
+        sectionEyebrow={data.processEyebrow}
         steps={data.processSteps}
+        styles={data.styles}
       />
       <Testimonials
         googleReviewsUrl={data.googleReviewsUrl}
         sectionTitle={data.testimonialTitle}
         sectionDesc={data.testimonialDesc}
+        sectionEyebrow={data.testimonialEyebrow}
+        googleLinkLabel={data.googleReviewsLinkLabel}
         items={data.testimonials}
+        styles={data.styles}
       />
-      <FaqSection sectionTitle={data.faqTitle} items={data.faqs} />
-      <CTASection title={data.ctaTitle} />
+      <FaqSection
+        sectionTitle={data.faqTitle}
+        sectionEyebrow={data.faqEyebrow}
+        items={data.faqs}
+        styles={data.styles}
+      />
+      <CTASection
+        title={data.ctaTitle}
+        buttonLabel={data.ctaButtonLabel}
+        bannerImages={data.ctaBanners}
+        sectionOffset={data.sectionCtaOffset}
+        styles={data.styles}
+      />
     </>
   );
 }

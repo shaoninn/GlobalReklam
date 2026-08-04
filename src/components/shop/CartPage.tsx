@@ -239,7 +239,7 @@ export function CartPage({ whatsappUrl }: { whatsappUrl: string }) {
                       {formatPrice(item.price)}
                     </p>
                     {item.optionsNote && (
-                      <p className="text-[11px] text-muted break-all">
+                      <p className="text-[11px] text-muted break-anywhere line-clamp-3">
                         {item.optionsNote}
                       </p>
                     )}

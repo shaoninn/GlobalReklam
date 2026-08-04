@@ -16,6 +16,16 @@ const FIELDS = [
     label: "WhatsApp (ülke kodlu)",
     help: "Örn: 905327359884 — sadece rakam.",
   },
+  {
+    key: "whatsapp_label",
+    label: "WhatsApp yazısı",
+    help: "Üst bardaki WhatsApp bağlantı metni.",
+  },
+  {
+    key: "location_label",
+    label: "Konum yazısı",
+    help: "Üst sol: Antalya / Çakırlar vb.",
+  },
   { key: "email", label: "E-posta", help: "İletişim formu ve footer." },
   { key: "address", label: "Adres", help: "İletişim sayfası ve harita sorgusu." },
   {

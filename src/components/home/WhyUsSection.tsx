@@ -33,20 +33,20 @@ export function WhyUsSection({ projects, stats }: WhyUsSectionProps) {
             return (
               <div
                 key={`stat-${n}`}
-                className="rounded-xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5"
+                className="rounded-xl border border-border bg-card px-2.5 py-3.5 sm:px-4 sm:py-5 min-w-0"
               >
                 <EditableText
                   contentKey={`stat_${n}_value`}
                   value={stat.value}
                   as="p"
-                  className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-orange mb-0.5"
+                  className="font-display text-lg sm:text-2xl lg:text-3xl font-bold text-orange mb-0.5 break-anywhere"
                   help={`İstatistik ${n} değer`}
                 />
                 <EditableText
                   contentKey={`stat_${n}_label`}
                   value={stat.label}
                   as="p"
-                  className="text-[10px] sm:text-xs text-muted uppercase tracking-wider leading-snug"
+                  className="text-[9px] sm:text-xs text-muted uppercase tracking-wider leading-snug break-anywhere"
                   help={`İstatistik ${n} etiket`}
                 />
               </div>

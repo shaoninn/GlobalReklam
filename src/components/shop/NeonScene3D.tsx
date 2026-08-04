@@ -25,7 +25,7 @@ export function NeonScene3D({
   const panel = getBackboardPanelStyle(backboard);
 
   return (
-    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-[#08080a]">
+    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-[#08080a] max-w-full">
       <div
         className="absolute inset-0"
         style={{

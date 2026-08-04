@@ -34,7 +34,7 @@ const NAV = [
   { href: "/admin/projeler", label: "Projeler", icon: Images },
   { href: "/admin/blog", label: "Blog", icon: FileText },
   { href: "/admin/siparisler", label: "Siparişler", icon: ShoppingBag },
-  { href: "/admin/siparisler/kanban", label: "Kanban", icon: LayoutDashboard },
+  { href: "/admin/siparisler/kanban", label: "Sipariş Panosu", icon: LayoutDashboard },
   { href: "/admin/crm", label: "CRM", icon: MessageSquare },
   { href: "/admin/musteriler", label: "Müşteriler", icon: UserRound },
   { href: "/admin/mesajlar", label: "Mesajlar", icon: MessageSquare },

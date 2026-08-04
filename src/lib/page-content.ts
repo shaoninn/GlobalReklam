@@ -122,10 +122,15 @@ export async function loadContactPageData(): Promise<ContactPageData> {
 export function buildValueProps(map: Record<string, string>) {
   return VALUE_PROPS.map((fallback, i) => {
     const n = i + 1;
+    const sizeRaw = map[`value_prop_${n}_icon_size`];
+    const iconSize = sizeRaw ? Number(sizeRaw) : undefined;
     return {
       icon: fallback.icon,
       title: map[`value_prop_${n}_title`] || fallback.title,
       desc: map[`value_prop_${n}_desc`] || fallback.desc,
+      iconUrl: map[`value_prop_${n}_icon`] || undefined,
+      iconSize:
+        iconSize && Number.isFinite(iconSize) ? iconSize : undefined,
     };
   });
 }

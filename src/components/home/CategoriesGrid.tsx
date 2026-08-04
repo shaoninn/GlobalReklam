@@ -10,9 +10,10 @@ import type { CategoryListItem } from "@/lib/catalog";
 interface CategoriesGridProps {
   categories: CategoryListItem[];
   title?: string;
+  titleStyle?: string;
 }
 
-export function CategoriesGrid({ categories, title }: CategoriesGridProps) {
+export function CategoriesGrid({ categories, title, titleStyle }: CategoriesGridProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const items = categories.slice(0, 18);
 
@@ -35,6 +36,7 @@ export function CategoriesGrid({ categories, title }: CategoriesGridProps) {
             block
             className="font-display text-2xl sm:text-3xl font-bold text-white max-w-xl"
             help="Kategoriler bölüm başlığı"
+            textStyle={titleStyle}
           />
           <div className="flex items-center gap-3">
             <div className="flex gap-2">

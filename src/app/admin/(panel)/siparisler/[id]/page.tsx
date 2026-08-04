@@ -67,7 +67,7 @@ export default async function AdminOrderDetailPage({
           href="/admin/siparisler/kanban"
           className="text-sm text-[#888] hover:text-orange"
         >
-          Kanban
+          Sipariş Panosu
         </Link>
         <Link
           href={`/admin/siparisler/${order.id}/yazdir`}

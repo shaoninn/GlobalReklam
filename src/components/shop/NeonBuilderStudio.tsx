@@ -231,17 +231,17 @@ export function NeonBuilderStudio({
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4 flex items-end justify-between gap-4">
-          <div>
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="min-w-0">
             <p className="text-xs text-muted">Tahmini fiyat</p>
-            <p className="font-display text-3xl font-bold text-orange">
+            <p className="font-display text-2xl sm:text-3xl font-bold text-orange break-anywhere">
               {formatPrice(price)}
             </p>
           </div>
           <button
             type="button"
             onClick={addToQuote}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-orange text-black font-semibold text-sm hover:bg-orange-dark"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 rounded-lg bg-orange text-black font-semibold text-sm hover:bg-orange-dark shrink-0"
           >
             {added ? <Check size={18} /> : <ShoppingCart size={18} />}
             {added ? "Eklendi" : "Teklife ekle"}

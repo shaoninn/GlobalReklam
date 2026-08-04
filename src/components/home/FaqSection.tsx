@@ -23,20 +23,33 @@ const DEFAULT_FAQS = [
 
 export function FaqSection({
   sectionTitle,
+  sectionEyebrow,
   items,
+  styles,
 }: {
   sectionTitle?: string;
+  sectionEyebrow?: string;
   items?: { q: string; a: string }[];
+  styles?: Record<string, string>;
 }) {
-  const list = items && items.length > 0 ? items : DEFAULT_FAQS;
+  const list = DEFAULT_FAQS.map((d, i) => ({
+    q: items?.[i]?.q || d.q,
+    a: items?.[i]?.a || d.a,
+  }));
 
   return (
     <section className="py-16 lg:py-20 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10">
-          <p className="text-orange text-xs font-semibold tracking-[0.3em] uppercase mb-2">
-            SSS
-          </p>
+          <EditableText
+            contentKey="faq_section_eyebrow"
+            value={sectionEyebrow || "SSS"}
+            as="p"
+            block
+            className="text-orange text-xs font-semibold tracking-[0.3em] uppercase mb-2"
+            help="SSS üst etiketi"
+            textStyle={styles?.faq_section_eyebrow}
+          />
           <EditableText
             contentKey="faq_section_title"
             value={sectionTitle || "Sık sorulan sorular"}
@@ -44,6 +57,7 @@ export function FaqSection({
             block
             className="font-display text-2xl sm:text-3xl font-bold text-white"
             help="SSS bölüm başlığı"
+            textStyle={styles?.faq_section_title}
           />
         </div>
         <div className="max-w-3xl space-y-3">
@@ -61,6 +75,7 @@ export function FaqSection({
                     as="span"
                     className="text-left"
                     help={`Soru ${n}`}
+                    textStyle={styles?.[`faq_${n}_q`]}
                   />
                   <span className="text-orange text-xl leading-none group-open:rotate-45 transition-transform shrink-0">
                     +
@@ -75,6 +90,7 @@ export function FaqSection({
                     multiline
                     className="text-sm text-muted leading-relaxed"
                     help={`Cevap ${n}`}
+                    textStyle={styles?.[`faq_${n}_a`]}
                   />
                 </div>
               </details>

@@ -7,10 +7,11 @@ import {
 } from "@/lib/catalog";
 import { getSiteSettings } from "@/lib/site";
 import { buildStats, buildValueProps } from "@/lib/page-content";
-import { INSTAGRAM } from "@/lib/constants";
+import { INSTAGRAM, FEATURE_BAR } from "@/lib/constants";
 import { getInstagramFeed } from "@/lib/instagram";
+import { styleContentKey } from "@/lib/text-style";
 
-const HOME_KEYS = [
+const HOME_CONTENT_KEYS = [
   "hero_title",
   "hero_subtitle",
   "hero_body",
@@ -30,25 +31,46 @@ const HOME_KEYS = [
   "why_us_6",
   "feature_bar_1_title",
   "feature_bar_1_desc",
+  "feature_bar_1_icon",
+  "feature_bar_1_icon_size",
   "feature_bar_2_title",
   "feature_bar_2_desc",
+  "feature_bar_2_icon",
+  "feature_bar_2_icon_size",
   "feature_bar_3_title",
   "feature_bar_3_desc",
+  "feature_bar_3_icon",
+  "feature_bar_3_icon_size",
   "feature_bar_4_title",
   "feature_bar_4_desc",
+  "feature_bar_4_icon",
+  "feature_bar_4_icon_size",
   "feature_bar_5_title",
   "feature_bar_5_desc",
+  "feature_bar_5_icon",
+  "feature_bar_5_icon_size",
   "cta_title",
+  "cta_button_label",
+  "cta_banner_1",
+  "cta_banner_2",
+  "cta_banner_3",
+  "cta_banner_4",
+  "process_section_eyebrow",
   "process_section_title",
   "process_section_desc",
+  "process_1_number",
   "process_1_title",
   "process_1_desc",
+  "process_2_number",
   "process_2_title",
   "process_2_desc",
+  "process_3_number",
   "process_3_title",
   "process_3_desc",
+  "process_4_number",
   "process_4_title",
   "process_4_desc",
+  "faq_section_eyebrow",
   "faq_section_title",
   "faq_1_q",
   "faq_1_a",
@@ -58,8 +80,10 @@ const HOME_KEYS = [
   "faq_3_a",
   "faq_4_q",
   "faq_4_a",
+  "testimonial_section_eyebrow",
   "testimonial_section_title",
   "testimonial_section_desc",
+  "google_reviews_link_label",
   "testimonial_1_quote",
   "testimonial_1_name",
   "testimonial_1_place",
@@ -71,12 +95,20 @@ const HOME_KEYS = [
   "testimonial_3_place",
   "value_prop_1_title",
   "value_prop_1_desc",
+  "value_prop_1_icon",
+  "value_prop_1_icon_size",
   "value_prop_2_title",
   "value_prop_2_desc",
+  "value_prop_2_icon",
+  "value_prop_2_icon_size",
   "value_prop_3_title",
   "value_prop_3_desc",
+  "value_prop_3_icon",
+  "value_prop_3_icon_size",
   "value_prop_4_title",
   "value_prop_4_desc",
+  "value_prop_4_icon",
+  "value_prop_4_icon_size",
   "stat_1_value",
   "stat_1_label",
   "stat_2_value",
@@ -85,10 +117,55 @@ const HOME_KEYS = [
   "stat_3_label",
   "stat_4_value",
   "stat_4_label",
+  "home_neon_link_label",
+  "home_sector_link_label",
+] as const;
+
+/** Style companion keys for commonly edited homepage texts. */
+const STYLE_BASE_KEYS = [
+  "hero_title",
+  "hero_subtitle",
+  "hero_body",
+  "services_section_title",
+  "cta_title",
+  "cta_button_label",
+  "process_section_eyebrow",
+  "process_section_title",
+  "process_section_desc",
+  "process_1_number",
+  "process_2_number",
+  "process_3_number",
+  "process_4_number",
+  "faq_section_eyebrow",
+  "faq_section_title",
+  "testimonial_section_eyebrow",
+  "testimonial_section_title",
+  "google_reviews_link_label",
+  "home_neon_link_label",
+  "home_sector_link_label",
+  "featured_products_title",
+  "shipping_banner_title",
+] as const;
+
+const HOME_KEYS = [
+  ...HOME_CONTENT_KEYS,
+  ...STYLE_BASE_KEYS.map((k) => styleContentKey(k)),
 ] as const;
 
 const DEFAULT_HERO_TITLE = "Markanızı Görünür Kılan Çözümler";
 const DEFAULT_HERO_SUBTITLE = "PROFESYONEL TABELA ÇÖZÜMLERİ";
+
+function pickStyles(
+  map: Record<string, string>,
+  keys: readonly string[]
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const k of keys) {
+    const sk = styleContentKey(k);
+    if (map[sk]) out[k] = map[sk]!;
+  }
+  return out;
+}
 
 export async function loadHomePageData() {
   try {
@@ -104,23 +181,59 @@ export async function loadHomePageData() {
       ]);
 
     const processSteps = [1, 2, 3, 4].map((n) => ({
+      n: map[`process_${n}_number`] || "",
       title: map[`process_${n}_title`] || "",
       desc: map[`process_${n}_desc`] || "",
     }));
-    const hasProcess = processSteps.every((s) => s.title && s.desc);
 
     const faqs = [1, 2, 3, 4].map((n) => ({
       q: map[`faq_${n}_q`] || "",
       a: map[`faq_${n}_a`] || "",
     }));
-    const hasFaqs = faqs.every((f) => f.q && f.a);
 
     const testimonials = [1, 2, 3].map((n) => ({
       quote: map[`testimonial_${n}_quote`] || "",
       name: map[`testimonial_${n}_name`] || "",
       place: map[`testimonial_${n}_place`] || "",
     }));
-    const hasTestimonials = testimonials.every((t) => t.quote && t.name);
+
+    const featureBarItems = FEATURE_BAR.map((_, i) => {
+      const n = i + 1;
+      const sizeRaw = map[`feature_bar_${n}_icon_size`];
+      const iconSize = sizeRaw ? Number(sizeRaw) : undefined;
+      return {
+        title: map[`feature_bar_${n}_title`] || "",
+        desc: map[`feature_bar_${n}_desc`] || "",
+        iconUrl: map[`feature_bar_${n}_icon`] || undefined,
+        iconSize:
+          iconSize && Number.isFinite(iconSize) ? iconSize : undefined,
+      };
+    });
+
+    const styles = pickStyles(map, [
+      ...STYLE_BASE_KEYS,
+      "process_1_title",
+      "process_1_desc",
+      "process_2_title",
+      "process_2_desc",
+      "process_3_title",
+      "process_3_desc",
+      "process_4_title",
+      "process_4_desc",
+      "faq_1_q",
+      "faq_1_a",
+      "testimonial_1_quote",
+      "feature_bar_1_title",
+      "feature_bar_1_desc",
+      "value_prop_1_title",
+      "value_prop_1_desc",
+      "value_prop_2_title",
+      "value_prop_2_desc",
+      "value_prop_3_title",
+      "value_prop_3_desc",
+      "value_prop_4_title",
+      "value_prop_4_desc",
+    ]);
 
     return {
       heroTitle: map.hero_title || DEFAULT_HERO_TITLE,
@@ -134,16 +247,29 @@ export async function loadHomePageData() {
       featuredProductsTitle: map.featured_products_title || undefined,
       shippingBannerTitle: map.shipping_banner_title || undefined,
       ctaTitle: map.cta_title || undefined,
+      ctaButtonLabel: map.cta_button_label || undefined,
+      ctaBanners: [1, 2, 3, 4].map((n) => map[`cta_banner_${n}`] || ""),
+      processEyebrow: map.process_section_eyebrow || undefined,
       processTitle: map.process_section_title || undefined,
       processDesc: map.process_section_desc || undefined,
-      processSteps: hasProcess ? processSteps : undefined,
+      processSteps,
+      faqEyebrow: map.faq_section_eyebrow || undefined,
       faqTitle: map.faq_section_title || undefined,
-      faqs: hasFaqs ? faqs : undefined,
+      faqs,
+      testimonialEyebrow: map.testimonial_section_eyebrow || undefined,
       testimonialTitle: map.testimonial_section_title || undefined,
       testimonialDesc: map.testimonial_section_desc || undefined,
-      testimonials: hasTestimonials ? testimonials : undefined,
+      googleReviewsLinkLabel: map.google_reviews_link_label || undefined,
+      testimonials,
+      featureBarItems,
+      neonLinkLabel: map.home_neon_link_label || undefined,
+      sectorLinkLabel: map.home_sector_link_label || undefined,
       valueProps: buildValueProps(map),
       stats: buildStats(map),
+      styles,
+      sectionCategoriesOffset: settings.sectionCategoriesOffset,
+      sectionCtaOffset: settings.sectionCtaOffset,
+      sectionFeatureBarOffset: settings.sectionFeatureBarOffset,
       projects,
       categories,
       products,
@@ -167,16 +293,29 @@ export async function loadHomePageData() {
       featuredProductsTitle: undefined,
       shippingBannerTitle: undefined,
       ctaTitle: undefined,
+      ctaButtonLabel: undefined,
+      ctaBanners: ["", "", "", ""],
+      processEyebrow: undefined,
       processTitle: undefined,
       processDesc: undefined,
       processSteps: undefined,
+      faqEyebrow: undefined,
       faqTitle: undefined,
       faqs: undefined,
+      testimonialEyebrow: undefined,
       testimonialTitle: undefined,
       testimonialDesc: undefined,
+      googleReviewsLinkLabel: undefined,
       testimonials: undefined,
+      featureBarItems: undefined,
+      neonLinkLabel: undefined,
+      sectorLinkLabel: undefined,
       valueProps: buildValueProps({}),
       stats: buildStats({}),
+      styles: {} as Record<string, string>,
+      sectionCategoriesOffset: "0",
+      sectionCtaOffset: "0",
+      sectionFeatureBarOffset: "0",
       projects: [],
       categories: [],
       products: [],

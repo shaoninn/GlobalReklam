@@ -58,9 +58,12 @@ export function OrderKanban({ initialOrders }: OrderKanbanProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3 overflow-x-auto pb-4">
+    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-3 xl:grid-cols-5 md:overflow-visible md:snap-none">
       {byWorkflow.map((col) => (
-        <div key={col.id} className="admin-card p-3 min-w-[200px]">
+        <div
+          key={col.id}
+          className="admin-card p-3 w-[min(78vw,240px)] shrink-0 snap-start md:w-auto md:min-w-0"
+        >
           <h3 className="text-xs font-semibold uppercase tracking-wider text-orange mb-3">
             {col.label}
             <span className="ml-1 text-[#666]">({col.items.length})</span>

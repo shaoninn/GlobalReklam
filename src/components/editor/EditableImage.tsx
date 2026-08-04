@@ -172,7 +172,7 @@ export function EditableImage({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed top-[4.75rem] right-3 z-[85] inline-flex items-center gap-1.5 rounded-lg border border-orange/60 bg-black/85 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-orange shadow-lg hover:bg-orange hover:text-white"
+          className="fixed top-[max(5.5rem,env(safe-area-inset-top))] sm:top-[4.75rem] right-3 z-[85] inline-flex items-center gap-1.5 rounded-lg border border-orange/60 bg-black/85 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-orange shadow-lg hover:bg-orange hover:text-white"
         >
           <ImagePlus size={14} />
           Arka plan görseli

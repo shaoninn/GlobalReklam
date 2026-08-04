@@ -10,6 +10,7 @@ import {
   WORK_HOURS,
   NAV_LINKS,
   GOOGLE_BUSINESS_URL,
+  LOCATION_LABEL,
 } from "@/lib/constants";
 
 export interface SiteSettingsMap {
@@ -23,6 +24,22 @@ export interface SiteSettingsMap {
   googleReviewsUrl: string;
   workHoursWeekdays: string;
   workHoursSunday: string;
+  /** Header location strip (Antalya / Çakırlar) */
+  locationLabel: string;
+  /** WhatsApp link label in top bar */
+  whatsappLabel: string;
+  /** Vertical shift for entire header (px) */
+  headerOffsetY: string;
+  /** Logo drag/scale JSON */
+  layoutLogo: string;
+  /** Top-right phone box drag JSON */
+  layoutPhoneBox: string;
+  /** Primary nav horizontal shift (px) */
+  layoutNavOffsetX: string;
+  /** Homepage section vertical offsets (px) */
+  sectionCategoriesOffset: string;
+  sectionCtaOffset: string;
+  sectionFeatureBarOffset: string;
 }
 
 export interface NavLinkItem {
@@ -71,6 +88,15 @@ function mapSettings(
     googleReviewsUrl: map.google_reviews_url || GOOGLE_BUSINESS_URL,
     workHoursWeekdays: map.work_hours_weekdays || WORK_HOURS.weekdays,
     workHoursSunday: map.work_hours_sunday || WORK_HOURS.sunday,
+    locationLabel: map.location_label || LOCATION_LABEL,
+    whatsappLabel: map.whatsapp_label || "WhatsApp",
+    headerOffsetY: map.header_offset_y || "0",
+    layoutLogo: map.layout_logo || "",
+    layoutPhoneBox: map.layout_phone_box || "",
+    layoutNavOffsetX: map.layout_nav_offset_x || "0",
+    sectionCategoriesOffset: map.section_categories_offset || "0",
+    sectionCtaOffset: map.section_cta_offset || "0",
+    sectionFeatureBarOffset: map.section_feature_bar_offset || "0",
   };
 }
 
@@ -85,6 +111,15 @@ const fallbackSettings = (): SiteSettingsMap => ({
   googleReviewsUrl: GOOGLE_BUSINESS_URL,
   workHoursWeekdays: WORK_HOURS.weekdays,
   workHoursSunday: WORK_HOURS.sunday,
+  locationLabel: LOCATION_LABEL,
+  whatsappLabel: "WhatsApp",
+  headerOffsetY: "0",
+  layoutLogo: "",
+  layoutPhoneBox: "",
+  layoutNavOffsetX: "0",
+  sectionCategoriesOffset: "0",
+  sectionCtaOffset: "0",
+  sectionFeatureBarOffset: "0",
 });
 
 async function loadSiteSettings(): Promise<SiteSettingsMap> {

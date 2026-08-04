@@ -57,7 +57,7 @@ export default async function SiteLayout({
         projects={menuProjects}
         blogPosts={menuPosts}
       />
-      <main id="main-content" className="min-h-screen pt-[5.5rem] sm:pt-[6rem] pb-24 md:pb-8">
+      <main id="main-content" className="min-h-screen pt-[5.75rem] sm:pt-[6.25rem] pb-[max(6rem,env(safe-area-inset-bottom))] md:pb-8 overflow-x-clip">
         {children}
       </main>
       <Footer

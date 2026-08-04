@@ -42,7 +42,7 @@ export function EditorChrome({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-[80] border-b border-border bg-[#111]/95 backdrop-blur-md">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 h-14 flex items-center gap-2 sm:gap-3">
+        <div className="max-w-[1600px] mx-auto px-2 sm:px-4 min-h-14 py-2 flex flex-wrap items-center gap-x-2 gap-y-2 sm:gap-3">
           <Link
             href="/admin"
             className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-white shrink-0"
@@ -51,16 +51,17 @@ export function EditorChrome({ children }: { children: React.ReactNode }) {
             <span className="hidden sm:inline">Admin</span>
           </Link>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/15 text-orange px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider shrink-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/15 text-orange px-2 py-1 text-[10px] font-semibold uppercase tracking-wider shrink-0">
             <Pencil size={10} />
-            Düzenleme
+            <span className="hidden xs:inline sm:inline">Düzenleme</span>
+            <span className="sm:hidden">Edit</span>
           </span>
 
-          <div className="relative min-w-0">
+          <div className="relative min-w-0 flex-1 sm:flex-none max-w-full">
             <button
               type="button"
               onClick={() => setPageOpen((v) => !v)}
-              className="inline-flex items-center gap-2 max-w-[14rem] sm:max-w-xs truncate rounded-lg border border-[#333] bg-black/40 px-3 py-1.5 text-sm text-white hover:border-orange"
+              className="inline-flex items-center gap-2 w-full sm:w-auto max-w-full sm:max-w-xs truncate rounded-lg border border-[#333] bg-black/40 px-2.5 sm:px-3 py-1.5 text-sm text-white hover:border-orange"
             >
               <span className="truncate">Sayfa: {current.label}</span>
               <ChevronDown size={14} className="shrink-0 text-muted" />
@@ -73,7 +74,7 @@ export function EditorChrome({ children }: { children: React.ReactNode }) {
                   aria-label="Kapat"
                   onClick={() => setPageOpen(false)}
                 />
-                <div className="absolute left-0 top-full z-50 mt-1 w-80 max-h-[70vh] overflow-y-auto rounded-lg border border-[#333] bg-[#151515] shadow-2xl">
+                <div className="absolute left-0 right-0 sm:right-auto top-full z-50 mt-1 w-[min(100vw-1.5rem,20rem)] max-h-[70vh] overflow-y-auto rounded-lg border border-[#333] bg-[#151515] shadow-2xl">
                   <p className="px-3 py-2 text-[10px] uppercase tracking-wider text-[#666] border-b border-[#333]">
                     Düzenlenebilir sayfalar
                   </p>
@@ -97,34 +98,34 @@ export function EditorChrome({ children }: { children: React.ReactNode }) {
             )}
           </div>
 
-          <div className="flex-1" />
+          <div className="hidden sm:block flex-1" />
 
           <button
             type="button"
             onClick={() => setNavOpen(true)}
-            className="hidden md:inline-flex text-xs text-muted hover:text-orange px-2 py-1.5"
+            className="text-[11px] sm:text-xs text-muted hover:text-orange px-1.5 sm:px-2 py-1.5 shrink-0"
           >
-            Menüyü yönet
+            Menü
           </button>
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}
-            className="hidden md:inline-flex text-xs text-muted hover:text-orange px-2 py-1.5"
+            className="text-[11px] sm:text-xs text-muted hover:text-orange px-1.5 sm:px-2 py-1.5 shrink-0"
           >
-            İletişim bilgileri
+            İletişim
           </button>
 
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
-            className="w-9 h-9 inline-flex items-center justify-center text-muted hover:text-orange"
+            className="w-9 h-9 inline-flex items-center justify-center text-muted hover:text-orange shrink-0"
             aria-label="Yardım"
           >
             <HelpCircle size={18} />
           </button>
 
-          <span className="text-[11px] text-muted shrink-0 min-w-[5rem] text-right">
-            {saving ? "Kaydediliyor…" : status || (dirtyCount > 0 ? `${dirtyCount} değişiklik` : "Hazır")}
+          <span className="text-[10px] sm:text-[11px] text-muted shrink-0 max-w-[4.5rem] sm:max-w-none sm:min-w-[5rem] text-right truncate">
+            {saving ? "…" : status || (dirtyCount > 0 ? `${dirtyCount} değiş.` : "Hazır")}
           </span>
         </div>
       </div>

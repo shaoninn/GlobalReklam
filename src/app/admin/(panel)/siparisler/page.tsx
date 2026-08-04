@@ -33,7 +33,7 @@ export default async function AdminOrdersPage() {
           href="/admin/siparisler/kanban"
           className="text-sm text-orange hover:underline"
         >
-          Kanban görünümü →
+          Sipariş Panosu →
         </a>
       </p>
       <OrdersClient initial={initial} />

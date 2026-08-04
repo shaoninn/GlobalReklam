@@ -25,7 +25,7 @@ export function NeonPreview({
 
   return (
     <div
-      className="rounded-2xl overflow-hidden border border-border min-h-[220px] sm:min-h-[260px] flex items-center justify-center p-8 sm:p-12 relative"
+      className="rounded-2xl overflow-hidden border border-border min-h-[180px] sm:min-h-[260px] flex items-center justify-center p-5 sm:p-12 relative max-w-full"
       style={{ background: WALL_BG, backgroundBlendMode: "multiply, normal, normal" }}
     >
       {/* Ambient wall wash from neon */}
@@ -60,7 +60,7 @@ export function NeonPreview({
           </>
         )}
         <p
-          className="text-3xl sm:text-5xl font-bold tracking-wide text-center break-words max-w-full"
+          className="text-2xl sm:text-5xl font-bold tracking-wide text-center break-words max-w-full"
           style={{
             fontFamily: fontFamily || "inherit",
             color: glow,
