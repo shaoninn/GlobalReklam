@@ -52,7 +52,7 @@ export function EditableText({
   textStyle: textStyleRaw = "",
   style: styleProp,
 }: EditableTextProps) {
-  const { enabled, saveContent, bumpDirty, saving } = useEditor();
+  const { enabled, saveContent, saving, draftEpoch } = useEditor();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [local, setLocal] = useState(value);
@@ -62,8 +62,15 @@ export function EditableText({
   const [localStyle, setLocalStyle] = useState<TextStyleValue>(() =>
     parseTextStyle(textStyleRaw)
   );
-  const dirtyRef = useRef(false);
   const anchorRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setLocal(value);
+    setDraft(value);
+    setLocalStyle(parseTextStyle(textStyleRaw));
+    setStyleDraft(parseTextStyle(textStyleRaw));
+    setEditing(false);
+  }, [draftEpoch]); // eslint-disable-line react-hooks/exhaustive-deps -- reset on discard
 
   useEffect(() => {
     setLocal(value);
@@ -79,12 +86,8 @@ export function EditableText({
   const close = useCallback(() => {
     setDraft(local);
     setStyleDraft(localStyle);
-    if (dirtyRef.current) {
-      bumpDirty(-1);
-      dirtyRef.current = false;
-    }
     setEditing(false);
-  }, [local, localStyle, bumpDirty]);
+  }, [local, localStyle]);
 
   const mergedStyle: CSSProperties = {
     ...textStyleToCss(localStyle),
@@ -125,39 +128,16 @@ export function EditableText({
     if (ok) {
       if (textChanged) setLocal(draft);
       if (styleChanged) setLocalStyle(styleDraft);
-      if (dirtyRef.current) {
-        bumpDirty(-1);
-        dirtyRef.current = false;
-      }
       setEditing(false);
-    }
-  }
-
-  function markDirty(nextText: string, nextStyle: TextStyleValue) {
-    const dirty =
-      nextText !== local ||
-      serializeTextStyle(nextStyle) !== serializeTextStyle(localStyle);
-    if (dirty && !dirtyRef.current) {
-      dirtyRef.current = true;
-      bumpDirty(1);
-    }
-    if (!dirty && dirtyRef.current) {
-      dirtyRef.current = false;
-      bumpDirty(-1);
     }
   }
 
   function onDraftChange(next: string) {
     setDraft(next);
-    markDirty(next, styleDraft);
   }
 
   function onStyleChange(patch: Partial<TextStyleValue>) {
-    setStyleDraft((prev) => {
-      const next = { ...prev, ...patch };
-      markDirty(draft, next);
-      return next;
-    });
+    setStyleDraft((prev) => ({ ...prev, ...patch }));
   }
 
   return (
@@ -203,7 +183,7 @@ export function EditableText({
       <EditorEditPanel open={editing} onClose={close} anchorRef={anchorRef}>
         <p className="text-[11px] text-muted mb-2 leading-relaxed">
           {help ||
-            "Bu metin sitede hemen görünür. Esc veya dışarı tıklayınca kapanır; kaydetmeden çıkarsanız değişiklikler silinir."}
+            "Uygula taslağa yazar. Siteye yansıması için üstteki Kaydet gerekir. Esc veya dışarı tık kapatır."}
         </p>
         {multiline ? (
           <textarea
@@ -301,7 +281,7 @@ export function EditableText({
             onClick={() => void commit()}
             className="px-3 py-1.5 bg-orange text-white text-xs font-semibold uppercase tracking-wider hover:bg-orange-dark disabled:opacity-50"
           >
-            Kaydet
+            Uygula
           </button>
           <button
             type="button"
@@ -315,7 +295,6 @@ export function EditableText({
             disabled={saving}
             onClick={() => {
               setStyleDraft({});
-              markDirty(draft, {});
             }}
             className="px-3 py-1.5 border border-border text-xs text-muted hover:text-white ml-auto"
           >

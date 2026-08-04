@@ -202,7 +202,7 @@ export function EditableImage({
             <span className="text-xs">Görsel ekle</span>
           </span>
         )}
-        <span className="absolute top-2 left-2 z-10 rounded bg-orange px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white opacity-90">
+        <span className="absolute top-2 left-2 z-10 rounded bg-orange px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white opacity-0 group-hover/edit:opacity-90 transition-opacity">
           Görsel
         </span>
       </button>

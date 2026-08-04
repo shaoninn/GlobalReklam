@@ -3,9 +3,7 @@
 import { Package, Clock, Users, Shield, Ruler } from "lucide-react";
 import { VALUE_PROPS } from "@/lib/constants";
 import { EditableText } from "@/components/editor/EditableText";
-import { EditableImage } from "@/components/editor/EditableImage";
-import { useEditor } from "@/components/editor/EditorProvider";
-import { useEffect, useState } from "react";
+import { EditableIconBox } from "@/components/editor/EditableIconBox";
 
 const iconKeys = ["quality", "clock", "team", "support", "design"] as const;
 
@@ -52,15 +50,17 @@ export function ValueProps({ items, styles }: ValuePropsProps) {
                 : iconKeys[index % iconKeys.length];
             const Icon = iconMap[iconKey];
             return (
-              <div
-                key={`vp-${n}`}
-                className="flex items-center gap-3 group"
-              >
-                <ValuePropIcon
-                  n={n}
+              <div key={`vp-${n}`} className="flex items-center gap-3 group min-w-0">
+                <EditableIconBox
+                  contentKey={`value_prop_${n}_icon`}
+                  sizeKey={`value_prop_${n}_icon_size`}
                   iconUrl={prop.iconUrl}
                   iconSize={prop.iconSize || 22}
                   FallbackIcon={Icon}
+                  alt={`İkon ${n}`}
+                  help={`Değer önerisi ${n} ikonu`}
+                  minSize={14}
+                  maxSize={36}
                 />
                 <div className="min-w-0">
                   <EditableText
@@ -85,86 +85,6 @@ export function ValueProps({ items, styles }: ValuePropsProps) {
           })}
         </div>
       </div>
-    </div>
-  );
-}
-
-function ValuePropIcon({
-  n,
-  iconUrl,
-  iconSize,
-  FallbackIcon,
-}: {
-  n: number;
-  iconUrl?: string;
-  iconSize: number;
-  FallbackIcon: typeof Clock;
-}) {
-  const { enabled, saveContent, saving } = useEditor();
-  const [size, setSize] = useState(iconSize);
-
-  useEffect(() => {
-    setSize(iconSize);
-  }, [iconSize]);
-
-  const box = size + 18;
-
-  return (
-    <div className="relative shrink-0 flex flex-col items-center gap-1">
-      {iconUrl ? (
-        <div style={{ width: box, height: box }} className="relative">
-          <EditableImage
-            contentKey={`value_prop_${n}_icon`}
-            value={iconUrl}
-            alt={`İkon ${n}`}
-            aspectClass="aspect-square"
-            className="w-full h-full rounded-lg overflow-hidden bg-orange/10"
-            imgClassName="object-contain p-1.5"
-            help={`Değer önerisi ${n} ikonu`}
-          />
-        </div>
-      ) : (
-        <div
-          className="rounded-lg flex items-center justify-center text-orange bg-orange/10 group-hover:scale-105 transition-transform relative overflow-hidden"
-          style={{ width: box, height: box }}
-        >
-          <FallbackIcon size={size} strokeWidth={1.5} />
-          {enabled && (
-            <div className="absolute inset-0 opacity-0 hover:opacity-100 bg-black/50 flex items-center justify-center">
-              <div className="scale-[0.55] origin-center w-[180%] h-[180%]">
-                <EditableImage
-                  contentKey={`value_prop_${n}_icon`}
-                  value=""
-                  alt={`İkon ${n}`}
-                  aspectClass="aspect-square"
-                  className="w-full h-full"
-                  help={`Değer önerisi ${n} için özel ikon yükleyin`}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      {enabled && (
-        <label className="flex items-center gap-0.5 text-[8px] text-muted">
-          <input
-            type="range"
-            min={14}
-            max={36}
-            value={size}
-            disabled={saving}
-            onChange={(e) => setSize(Number(e.target.value))}
-            onPointerUp={() =>
-              void saveContent(`value_prop_${n}_icon_size`, String(size))
-            }
-            onMouseUp={() =>
-              void saveContent(`value_prop_${n}_icon_size`, String(size))
-            }
-            className="w-10 accent-orange"
-            aria-label={`İkon ${n} boyutu`}
-          />
-        </label>
-      )}
     </div>
   );
 }

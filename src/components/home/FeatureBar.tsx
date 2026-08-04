@@ -3,10 +3,8 @@
 import { Search, PenTool, Factory, Wrench, Headphones } from "lucide-react";
 import { FEATURE_BAR } from "@/lib/constants";
 import { EditableText } from "@/components/editor/EditableText";
-import { EditableImage } from "@/components/editor/EditableImage";
 import { EditableSectionShift } from "@/components/editor/EditableSectionShift";
-import { useEditor } from "@/components/editor/EditorProvider";
-import { useEffect, useState } from "react";
+import { EditableIconBox } from "@/components/editor/EditableIconBox";
 
 const iconMap = {
   search: Search,
@@ -48,20 +46,23 @@ export function FeatureBar({
     >
       <section className="border-y border-border bg-card/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-5">
             {list.map((item, index) => {
               const n = index + 1;
               const Icon = iconMap[item.icon as keyof typeof iconMap] || Search;
               return (
                 <div
                   key={`fb-${n}`}
-                  className="flex flex-col items-start lg:items-center lg:text-center gap-3 px-2"
+                  className="flex flex-col items-start lg:items-center lg:text-center gap-3 px-2 min-w-0"
                 >
-                  <FeatureIconSlot
-                    n={n}
+                  <EditableIconBox
+                    contentKey={`feature_bar_${n}_icon`}
+                    sizeKey={`feature_bar_${n}_icon_size`}
                     iconUrl={item.iconUrl}
                     iconSize={item.iconSize}
                     FallbackIcon={Icon}
+                    alt={`Özellik ikon ${n}`}
+                    help={`Özellik ${n} için özel ikon yükleyin`}
                   />
                   <EditableText
                     contentKey={`feature_bar_${n}_title`}
@@ -87,82 +88,5 @@ export function FeatureBar({
         </div>
       </section>
     </EditableSectionShift>
-  );
-}
-
-function FeatureIconSlot({
-  n,
-  iconUrl,
-  iconSize,
-  FallbackIcon,
-}: {
-  n: number;
-  iconUrl?: string;
-  iconSize: number;
-  FallbackIcon: typeof Search;
-}) {
-  const { enabled, saveContent, saving } = useEditor();
-  const [size, setSize] = useState(iconSize);
-  const box = size + 22;
-
-  useEffect(() => {
-    setSize(iconSize);
-  }, [iconSize]);
-
-  return (
-    <div className="relative flex flex-col items-center gap-1">
-      {iconUrl ? (
-        <div style={{ width: box, height: box }}>
-          <EditableImage
-            contentKey={`feature_bar_${n}_icon`}
-            value={iconUrl}
-            alt={`Özellik ikon ${n}`}
-            aspectClass="aspect-square"
-            className="w-full h-full rounded-lg overflow-hidden bg-orange/10"
-            imgClassName="object-contain p-1.5"
-            help={`Özellik ${n} ikon görseli`}
-          />
-        </div>
-      ) : (
-        <div
-          className="rounded-lg bg-orange/10 text-orange flex items-center justify-center relative"
-          style={{ width: box, height: box }}
-        >
-          <FallbackIcon size={size} strokeWidth={1.5} />
-          {enabled && (
-            <div className="absolute -bottom-1 -right-1 scale-75 origin-bottom-right">
-              <EditableImage
-                contentKey={`feature_bar_${n}_icon`}
-                value=""
-                alt={`Özellik ikon ${n}`}
-                aspectClass="aspect-square"
-                className="w-10 h-10 rounded border border-orange/50 bg-black/80"
-                help={`Özellik ${n} için özel ikon yükleyin (JPG/PNG)`}
-              />
-            </div>
-          )}
-        </div>
-      )}
-      {enabled && (
-        <label className="flex items-center gap-1 text-[9px] text-muted">
-          Boyut
-          <input
-            type="range"
-            min={16}
-            max={40}
-            value={size}
-            disabled={saving}
-            onChange={(e) => setSize(Number(e.target.value))}
-            onPointerUp={() =>
-              void saveContent(`feature_bar_${n}_icon_size`, String(size))
-            }
-            onMouseUp={() =>
-              void saveContent(`feature_bar_${n}_icon_size`, String(size))
-            }
-            className="w-14 accent-orange"
-          />
-        </label>
-      )}
-    </div>
   );
 }

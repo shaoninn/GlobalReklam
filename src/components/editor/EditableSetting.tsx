@@ -8,7 +8,6 @@ import {
   type ElementType,
   type KeyboardEvent,
 } from "react";
-import { useRouter } from "next/navigation";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { EditorEditPanel } from "@/components/editor/EditorEditPanel";
 
@@ -30,13 +29,17 @@ export function EditableSetting({
   multiline?: boolean;
   block?: boolean;
 }) {
-  const router = useRouter();
-  const { enabled, saveSetting, bumpDirty, saving } = useEditor();
+  const { enabled, saveSetting, saving, draftEpoch } = useEditor();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [local, setLocal] = useState(value);
-  const dirtyRef = useRef(false);
   const anchorRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setLocal(value);
+    setDraft(value);
+    setEditing(false);
+  }, [draftEpoch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setLocal(value);
@@ -45,12 +48,8 @@ export function EditableSetting({
 
   const close = useCallback(() => {
     setDraft(local);
-    if (dirtyRef.current) {
-      bumpDirty(-1);
-      dirtyRef.current = false;
-    }
     setEditing(false);
-  }, [local, bumpDirty]);
+  }, [local]);
 
   if (!enabled) {
     return <Tag className={className}>{local}</Tag>;
@@ -64,20 +63,7 @@ export function EditableSetting({
     const ok = await saveSetting(settingKey, draft);
     if (ok) {
       setLocal(draft);
-      if (dirtyRef.current) {
-        bumpDirty(-1);
-        dirtyRef.current = false;
-      }
       setEditing(false);
-      router.refresh();
-    }
-  }
-
-  function onDraftChange(next: string) {
-    setDraft(next);
-    if (!dirtyRef.current && next !== local) {
-      dirtyRef.current = true;
-      bumpDirty(1);
     }
   }
 
@@ -114,20 +100,21 @@ export function EditableSetting({
       </span>
       <EditorEditPanel open={editing} onClose={close} anchorRef={anchorRef}>
         <p className="text-[11px] text-muted mb-2 leading-relaxed">
-          {help || "Bu değer site ayarlarına kaydedilir (telefon, adres vb.)."}
+          {help ||
+            "Uygula taslağa yazar. Yayınlamak için üstteki Kaydet’e basın."}
         </p>
         {multiline ? (
           <textarea
             className="admin-input min-h-[100px] text-sm w-full"
             value={draft}
-            onChange={(e) => onDraftChange(e.target.value)}
+            onChange={(e) => setDraft(e.target.value)}
             autoFocus
           />
         ) : (
           <input
             className="admin-input text-sm w-full"
             value={draft}
-            onChange={(e) => onDraftChange(e.target.value)}
+            onChange={(e) => setDraft(e.target.value)}
             autoFocus
           />
         )}
@@ -138,7 +125,7 @@ export function EditableSetting({
             onClick={() => void commit()}
             className="px-3 py-1.5 bg-orange text-white text-xs font-semibold uppercase tracking-wider hover:bg-orange-dark disabled:opacity-50"
           >
-            Kaydet
+            Uygula
           </button>
           <button
             type="button"

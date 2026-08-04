@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapPin, Phone } from "lucide-react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { MapPin, Phone, GripVertical } from "lucide-react";
 import { SiteLink } from "@/components/ui/SiteLink";
 import { HeaderClient } from "./HeaderClient";
 import { Logo } from "@/components/brand/Logo";
@@ -50,55 +50,77 @@ function useSyncedNumber(initial: number) {
   return [v, setV] as const;
 }
 
-function HeaderOffsetControl({
+function DragOffsetHandle({
   value,
   onChange,
+  onCommit,
+  axis,
+  min,
+  max,
+  label,
 }: {
   value: number;
   onChange: (n: number) => void;
+  onCommit: (n: number) => void;
+  axis: "x" | "y";
+  min: number;
+  max: number;
+  label: string;
 }) {
-  const { saveSetting, saving } = useEditor();
-  return (
-    <input
-      type="range"
-      min={-24}
-      max={40}
-      step={2}
-      value={value}
-      disabled={saving}
-      onChange={(e) => onChange(Number(e.target.value))}
-      onPointerUp={() => void saveSetting("header_offset_y", String(value))}
-      onMouseUp={() => void saveSetting("header_offset_y", String(value))}
-      className="w-20 accent-orange"
-      aria-label="Header dikey kaydır"
-    />
-  );
-}
+  const { saving } = useEditor();
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const dragRef = useRef<{ start: number; startVal: number } | null>(null);
 
-function NavOffsetControl({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (n: number) => void;
-}) {
-  const { saveSetting, saving } = useEditor();
+  function onPointerDown(e: ReactPointerEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      start: axis === "y" ? e.clientY : e.clientX,
+      startVal: value,
+    };
+  }
+
+  function onPointerMove(e: ReactPointerEvent) {
+    const d = dragRef.current;
+    if (!d) return;
+    const cur = axis === "y" ? e.clientY : e.clientX;
+    const next = Math.max(min, Math.min(max, d.startVal + (cur - d.start)));
+    onChange(next);
+  }
+
+  function onPointerUp(e: ReactPointerEvent) {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    onCommit(valueRef.current);
+  }
+
   return (
-    <label className="absolute -top-6 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-1 rounded bg-black/90 border border-border px-1.5 py-0.5 text-[9px] text-muted whitespace-nowrap">
-      Menü kaydır
-      <input
-        type="range"
-        min={-80}
-        max={80}
-        step={4}
-        value={value}
-        disabled={saving}
-        onChange={(e) => onChange(Number(e.target.value))}
-        onPointerUp={() => void saveSetting("layout_nav_offset_x", String(value))}
-        onMouseUp={() => void saveSetting("layout_nav_offset_x", String(value))}
-        className="w-16 accent-orange"
-      />
-    </label>
+    <button
+      type="button"
+      disabled={saving}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onDoubleClick={() => {
+        onChange(0);
+        onCommit(0);
+      }}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-orange/40 bg-black/90 px-2 py-1 text-[10px] text-muted cursor-grab active:cursor-grabbing touch-none select-none"
+      title="Tutup sürükleyin · çift tık: sıfırla"
+      aria-label={label}
+    >
+      <GripVertical size={12} className="text-orange" />
+      <span className="uppercase tracking-wider">{label}</span>
+      <span className="text-white/80 tabular-nums w-7">{Math.round(value)}</span>
+    </button>
   );
 }
 
@@ -109,7 +131,7 @@ export function Header({
   projects = [],
   blogPosts = [],
 }: HeaderProps) {
-  const { enabled } = useEditor();
+  const { enabled, saveSetting } = useEditor();
   const waHref = `${settings.whatsappUrl}?text=${encodeURIComponent(
     "Merhaba, tabela / reklam için bilgi almak istiyorum."
   )}`;
@@ -129,11 +151,15 @@ export function Header({
       }
     >
       {enabled && (
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-[80] hidden sm:flex items-center gap-2 rounded-lg border border-orange/40 bg-black/90 px-2 py-1 text-[10px] text-muted shadow-lg">
-          <span className="uppercase tracking-wider">Header kaydır</span>
-          <HeaderOffsetControl
+        <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 z-[80] hidden sm:block">
+          <DragOffsetHandle
             value={headerOffset}
             onChange={setHeaderOffset}
+            onCommit={(n) => void saveSetting("header_offset_y", String(Math.round(n)))}
+            axis="y"
+            min={-24}
+            max={40}
+            label="Header"
           />
         </div>
       )}
@@ -213,10 +239,19 @@ export function Header({
               }
             >
               {enabled && (
-                <NavOffsetControl
-                  value={navOffsetX}
-                  onChange={setNavOffsetX}
-                />
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-[70]">
+                  <DragOffsetHandle
+                    value={navOffsetX}
+                    onChange={setNavOffsetX}
+                    onCommit={(n) =>
+                      void saveSetting("layout_nav_offset_x", String(Math.round(n)))
+                    }
+                    axis="x"
+                    min={-80}
+                    max={80}
+                    label="Menü"
+                  />
+                </div>
               )}
               {primaryNav.map((link) => (
                 <SiteLink

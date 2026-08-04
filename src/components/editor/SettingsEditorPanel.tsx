@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useEditor } from "@/components/editor/EditorProvider";
-import { useRouter } from "next/navigation";
 
 const FIELDS = [
   {
@@ -52,7 +51,6 @@ const FIELDS = [
 
 export function SettingsEditorPanel({ onClose }: { onClose: () => void }) {
   const { saveSetting } = useEditor();
-  const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,12 +70,11 @@ export function SettingsEditorPanel({ onClose }: { onClose: () => void }) {
     })();
   }, []);
 
-  async function saveOne(key: string) {
+  async function applyOne(key: string) {
     setSavingKey(key);
     setError(null);
     const ok = await saveSetting(key, values[key] ?? "");
-    if (!ok) setError("Kayıt başarısız");
-    else router.refresh();
+    if (!ok) setError("Uygulanamadı");
     setSavingKey(null);
   }
 
@@ -96,7 +93,8 @@ export function SettingsEditorPanel({ onClose }: { onClose: () => void }) {
               İletişim bilgileri
             </h2>
             <p className="text-xs text-muted mt-1">
-              Telefon, adres ve çalışma saatleri tüm sitede ortak kullanılır.
+              Uygula taslağa yazar. Yayınlamak için üstteki{" "}
+              <strong className="text-white">Kaydet</strong> gerekir.
             </p>
           </div>
           <button
@@ -128,10 +126,10 @@ export function SettingsEditorPanel({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 disabled={savingKey === field.key}
-                onClick={() => void saveOne(field.key)}
+                onClick={() => void applyOne(field.key)}
                 className="px-3 py-1.5 bg-orange text-white text-xs font-semibold uppercase tracking-wider disabled:opacity-50"
               >
-                {savingKey === field.key ? "…" : "Kaydet"}
+                {savingKey === field.key ? "…" : "Uygula"}
               </button>
             </div>
           ))}
