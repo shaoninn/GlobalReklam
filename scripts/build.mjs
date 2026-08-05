@@ -16,7 +16,10 @@ function run(cmd, args) {
   return result.status ?? 1;
 }
 
-let code = run("npx", ["prisma", "generate"]);
+let code = run("node", ["scripts/optimize-images.mjs"]);
+if (code !== 0) process.exit(code);
+
+code = run("npx", ["prisma", "generate"]);
 if (code !== 0) process.exit(code);
 
 code = run("npx", ["next", "build"]);

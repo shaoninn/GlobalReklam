@@ -6,7 +6,8 @@ import { PageIntro } from "@/components/editor/PageIntro";
 import { CatalogAdminHint } from "@/components/editor/CatalogAdminHint";
 import { EditableText } from "@/components/editor/EditableText";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 export const metadata = {
   title: "Blog",

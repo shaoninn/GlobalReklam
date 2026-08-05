@@ -7,9 +7,11 @@
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/optimize-images.mjs",
     "build": "node scripts/build.mjs",
     "start": "node scripts/start.mjs",
     "lint": "eslint",
+    "optimize:images": "node scripts/optimize-images.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -19,6 +21,14 @@
     "db:setup": "prisma generate && prisma db push && tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },
+  "browserslist": [
+    "chrome >= 111",
+    "firefox >= 111",
+    "safari >= 16.4",
+    "edge >= 111",
+    "not dead",
+    "not op_mini all"
+  ],
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },

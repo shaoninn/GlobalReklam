@@ -2,7 +2,8 @@ import { getSiteSettings } from "@/lib/site";
 import { ContactPageView } from "@/components/contact/ContactPageView";
 import { loadContactPageData } from "@/lib/page-content";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 export const metadata = {
   title: "İletişim | Global Reklam",

@@ -1,7 +1,8 @@
 import { SiteLink } from "@/components/ui/SiteLink";
 import { SECTORS } from "@/lib/sectors";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 export const metadata = {
   title: "Sektörel Tabela Çözümleri | Global Reklam",

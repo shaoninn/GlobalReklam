@@ -4,7 +4,8 @@ import { prisma } from "@/lib/db";
 import { getSectorBySlug } from "@/lib/sectors";
 import { CatalogProductGrid } from "@/components/shop/CatalogProductGrid";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 interface Props {
   params: Promise<{ slug: string }>;

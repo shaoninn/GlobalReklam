@@ -87,6 +87,7 @@ export function CategoriesGrid({ categories, title, titleStyle }: CategoriesGrid
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="200px"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center p-3">

@@ -1,18 +1,38 @@
+import dynamic from "next/dynamic";
 import { Hero } from "@/components/home/Hero";
-import { CategoriesGrid } from "@/components/home/CategoriesGrid";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
-import { WhyUsSection } from "@/components/home/WhyUsSection";
-import { FeatureBar } from "@/components/home/FeatureBar";
-import { ShippingBanner } from "@/components/home/ShippingBanner";
-import { ProcessSteps } from "@/components/home/ProcessSteps";
-import { Testimonials } from "@/components/home/Testimonials";
-import { FaqSection } from "@/components/home/FaqSection";
-import { CTASection } from "@/components/home/CTASection";
-import { InstagramStrip } from "@/components/shop/InstagramStrip";
-import { RecentlyViewed } from "@/components/shop/RecentlyViewed";
-import { loadHomePageData } from "@/lib/home-content";
-import { HomeQuickLinks } from "@/components/home/HomeQuickLinks";
 import { HomeCategoriesSection } from "@/components/home/HomeCategoriesSection";
+import { HomeQuickLinks } from "@/components/home/HomeQuickLinks";
+import { InstagramStrip } from "@/components/shop/InstagramStrip";
+import { loadHomePageData } from "@/lib/home-content";
+
+/** Below-the-fold client sections — separate JS chunks (SSR HTML retained). */
+const FeaturedProducts = dynamic(() =>
+  import("@/components/home/FeaturedProducts").then((m) => m.FeaturedProducts)
+);
+const RecentlyViewed = dynamic(() =>
+  import("@/components/shop/RecentlyViewed").then((m) => m.RecentlyViewed)
+);
+const WhyUsSection = dynamic(() =>
+  import("@/components/home/WhyUsSection").then((m) => m.WhyUsSection)
+);
+const FeatureBar = dynamic(() =>
+  import("@/components/home/FeatureBar").then((m) => m.FeatureBar)
+);
+const ShippingBanner = dynamic(() =>
+  import("@/components/home/ShippingBanner").then((m) => m.ShippingBanner)
+);
+const ProcessSteps = dynamic(() =>
+  import("@/components/home/ProcessSteps").then((m) => m.ProcessSteps)
+);
+const Testimonials = dynamic(() =>
+  import("@/components/home/Testimonials").then((m) => m.Testimonials)
+);
+const FaqSection = dynamic(() =>
+  import("@/components/home/FaqSection").then((m) => m.FaqSection)
+);
+const CTASection = dynamic(() =>
+  import("@/components/home/CTASection").then((m) => m.CTASection)
+);
 
 export async function HomePageView() {
   const data = await loadHomePageData();

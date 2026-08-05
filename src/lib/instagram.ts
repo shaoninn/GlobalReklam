@@ -52,7 +52,7 @@ async function fetchFromGraph(
   url.searchParams.set("access_token", token);
 
   const res = await fetch(url.toString(), {
-    next: { revalidate: 0 },
+    next: { revalidate: 1800 },
     signal: AbortSignal.timeout(12_000),
   });
 

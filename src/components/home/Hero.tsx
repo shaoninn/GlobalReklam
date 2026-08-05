@@ -15,7 +15,7 @@ interface HeroProps {
   styles?: Record<string, string>;
 }
 
-const DEFAULT_HERO = "/images/hero/hero-global.png";
+const DEFAULT_HERO = "/images/hero/hero-global.webp";
 const DEFAULT_BODY =
   "CNC kesim, neon LED, kutu harf ve dijital baskı ile markanızı Antalya'da görünür kılıyoruz. Keşiften montaja tek ekip.";
 
@@ -94,6 +94,8 @@ export function Hero({ title, subtitle, body, image, valueProps, styles }: HeroP
                 fallback={DEFAULT_HERO}
                 alt="Global Reklam hero"
                 fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 imgClassName="object-cover object-center"
                 help="Ana sayfa sağ görsel. Editörde “Arka plan görseli” düğmesine tıklayın."
               />

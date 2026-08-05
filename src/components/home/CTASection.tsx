@@ -15,10 +15,10 @@ interface CTASectionProps {
 }
 
 const FALLBACK_BANNERS = [
-  "/images/portfolio/cmk-ecu-completed.png",
-  "/images/portfolio/acity-avm-tabela.png",
-  "/images/portfolio/kurye-garaji-germe.png",
-  "/images/portfolio/gulbag-totem-3.png",
+  "/images/portfolio/cmk-ecu-completed.webp",
+  "/images/portfolio/acity-avm-tabela.webp",
+  "/images/portfolio/kurye-garaji-germe.webp",
+  "/images/portfolio/gulbag-totem-3.webp",
 ];
 
 export function CTASection({
@@ -50,6 +50,8 @@ export function CTASection({
                   src={src}
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             ))}

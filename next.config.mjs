@@ -28,11 +28,23 @@ const securityHeaders = [
   },
 ];
 
+const staticAssetCache = [
+  {
+    key: "Cache-Control",
+    value: "public, max-age=31536000, immutable",
+  },
+];
+
 const nextConfig = {
   poweredByHeader: false,
-  // Hostinger: skip sharp optimizer (404s / CPU spikes); serve originals.
+  compress: true,
+  // Hostinger: runtime /_next/image sharp often 404s / spikes CPU.
+  // Serve originals + pre-baked WebP from scripts/optimize-images.mjs.
   images: {
     unoptimized: true,
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       { protocol: "https", hostname: "**" },
       { protocol: "http", hostname: "**" },
@@ -43,6 +55,41 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: securityHeaders,
+      },
+      {
+        source: "/images/:path*",
+        headers: staticAssetCache,
+      },
+      {
+        source: "/_next/static/:path*",
+        headers: staticAssetCache,
+      },
+      {
+        source: "/favicon.ico",
+        headers: staticAssetCache,
+      },
+      {
+        source: "/icon.png",
+        headers: staticAssetCache,
+      },
+      {
+        source: "/apple-icon.png",
+        headers: staticAssetCache,
+      },
+    ];
+  },
+  async redirects() {
+    // Single hop: legacy apex typos / trailing host variants handled in middleware.
+    return [
+      {
+        source: "/index.html",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/index.php",
+        destination: "/",
+        permanent: true,
       },
     ];
   },

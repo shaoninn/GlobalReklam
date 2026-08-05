@@ -14,11 +14,17 @@ export const viewport: Viewport = {
 const outfit = Outfit({
   subsets: ["latin", "latin-ext"],
   variable: "--font-body",
+  display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display",
+  display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 const siteUrl = getSiteUrl();

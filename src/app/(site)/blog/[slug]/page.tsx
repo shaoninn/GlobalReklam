@@ -3,7 +3,8 @@ import Image from "next/image";
 import { SiteLink } from "@/components/ui/SiteLink";
 import { getPostBySlug } from "@/lib/catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 interface Props {
   params: Promise<{ slug: string }>;

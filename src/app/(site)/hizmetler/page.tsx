@@ -20,7 +20,8 @@ import {
   Fence,
 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 const iconMap: Record<string, React.ElementType> = {
   totem: Columns,

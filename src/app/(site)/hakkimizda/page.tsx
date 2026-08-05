@@ -1,7 +1,8 @@
 import { AboutPageView } from "@/components/about/AboutPageView";
 import { loadAboutPageData } from "@/lib/page-content";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 export const metadata = {
   title: "Hakkımızda | Global Reklam",

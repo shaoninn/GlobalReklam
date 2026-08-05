@@ -14,8 +14,8 @@ import { MapPin, Check, Truck } from "lucide-react";
 import { CatalogAdminHint } from "@/components/editor/CatalogAdminHint";
 import { ProductBadges } from "@/components/shop/ProductBadges";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
+
 
 interface Props {
   params: Promise<{ slug: string }>;

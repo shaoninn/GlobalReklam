@@ -4,7 +4,8 @@ import { getSiteSettings } from "@/lib/site";
 import { parseRatesFromSettings } from "@/lib/price-formula";
 import { prisma } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 
 export const metadata = {
   title: "Neon Tasarla | Global Reklam",

@@ -8,8 +8,23 @@ import {
   type ChangeEvent,
   type DragEvent,
 } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { ImagePlus, Loader2 } from "lucide-react";
+import {
+  isLocalPublicPath,
+  toWebpSrc,
+  toWebpSrcMobile,
+} from "@/lib/image-optimize";
+
+const EditorImagePanel = dynamic(
+  () =>
+    import("@/components/editor/EditableImagePanel").then(
+      (m) => m.EditableImagePanel
+    ),
+  { ssr: false }
+);
 
 type EditableImageProps = {
   contentKey: string;
@@ -22,7 +37,86 @@ type EditableImageProps = {
   aspectClass?: string;
   /** When true, fills parent (absolute inset-0) like a background */
   fill?: boolean;
+  /** LCP / above-the-fold: preload + high fetch priority */
+  priority?: boolean;
+  sizes?: string;
 };
+
+function PublicImg({
+  src,
+  alt,
+  imgClassName,
+  fill,
+  priority,
+  sizes,
+}: {
+  src: string;
+  alt: string;
+  imgClassName: string;
+  fill: boolean;
+  priority?: boolean;
+  sizes?: string;
+}) {
+  const webp = toWebpSrc(src);
+  const webpSm = toWebpSrcMobile(src);
+  const usePicture = isLocalPublicPath(src) && Boolean(webpSm || webp !== src);
+
+  if (usePicture) {
+    const className = `absolute inset-0 h-full w-full ${imgClassName}`;
+    return (
+      <picture className={fill ? "absolute inset-0 block h-full w-full" : "contents"}>
+        {webpSm ? (
+          <source
+            media="(max-width: 640px)"
+            srcSet={webpSm}
+            type="image/webp"
+          />
+        ) : null}
+        {webp.endsWith(".webp") ? (
+          <source srcSet={webp} type="image/webp" />
+        ) : null}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={webp}
+          alt={alt}
+          className={className}
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : "auto"}
+          sizes={sizes}
+        />
+      </picture>
+    );
+  }
+
+  if (fill) {
+    return (
+      <Image
+        src={webp}
+        alt={alt}
+        fill
+        priority={priority}
+        fetchPriority={priority ? "high" : "auto"}
+        sizes={sizes || "100vw"}
+        className={imgClassName}
+        loading={priority ? undefined : "lazy"}
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={webp}
+      alt={alt}
+      fill
+      priority={priority}
+      fetchPriority={priority ? "high" : "auto"}
+      sizes={sizes || "100vw"}
+      className={imgClassName}
+      loading={priority ? undefined : "lazy"}
+    />
+  );
+}
 
 export function EditableImage({
   contentKey,
@@ -34,6 +128,8 @@ export function EditableImage({
   help,
   aspectClass = "aspect-[16/9]",
   fill = false,
+  priority = false,
+  sizes,
 }: EditableImageProps) {
   const { enabled, saveContent, saving } = useEditor();
   const [local, setLocal] = useState(value || fallback);
@@ -89,85 +185,58 @@ export function EditableImage({
     if (!src) return null;
     if (fill) {
       return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={alt} className={`absolute inset-0 h-full w-full ${imgClassName}`} />
+        <PublicImg
+          src={src}
+          alt={alt}
+          imgClassName={imgClassName}
+          fill
+          priority={priority}
+          sizes={sizes || "(max-width: 1024px) 100vw, 50vw"}
+        />
       );
     }
     return (
       <div className={`relative overflow-hidden ${aspectClass} ${className || ""}`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <PublicImg
           src={src}
           alt={alt}
-          className={`absolute inset-0 h-full w-full ${imgClassName}`}
+          imgClassName={imgClassName}
+          fill
+          priority={priority}
+          sizes={sizes || "100vw"}
         />
       </div>
     );
   }
 
   const panel = open ? (
-    <div
-      className={`${
-        fill
-          ? "fixed left-1/2 top-24 z-[90] w-[min(100vw-2rem,22rem)] -translate-x-1/2"
-          : "absolute left-2 top-12 z-50 w-[min(100vw-2rem,22rem)]"
-      } rounded-lg border border-border bg-card p-3 shadow-2xl`}
-    >
-      <p className="text-[11px] text-muted mb-3 leading-relaxed">
-        {help ||
-          "Bilgisayardan bir görsel seçin veya sürükleyip bırakın (JPG/PNG/WEBP, max 8 MB)."}
-      </p>
-      <label
-        htmlFor={inputId}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={onDrop}
-        className={`flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-3 py-6 text-center cursor-pointer ${
-          dragOver ? "border-orange bg-orange/10" : "border-[#333]"
-        }`}
-      >
-        <input
-          ref={inputRef}
-          id={inputId}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="sr-only"
-          disabled={uploading || saving}
-          onChange={onChange}
-        />
-        {uploading ? (
-          <Loader2 className="animate-spin text-orange" size={22} />
-        ) : (
-          <ImagePlus size={22} className="text-orange" />
-        )}
-        <span className="text-xs text-white font-semibold">
-          {uploading ? "Yükleniyor…" : "Sürükle veya tıkla"}
-        </span>
-      </label>
-      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-      <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="px-3 py-1.5 border border-border text-xs text-muted hover:text-white"
-        >
-          Kapat
-        </button>
-      </div>
-    </div>
+    <EditorImagePanel
+      fill={fill}
+      help={help}
+      inputId={inputId}
+      inputRef={inputRef}
+      uploading={uploading}
+      saving={saving}
+      dragOver={dragOver}
+      error={error}
+      onDragOver={() => setDragOver(true)}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={onDrop}
+      onChange={onChange}
+      onClose={() => setOpen(false)}
+    />
   ) : null;
 
   if (fill) {
     return (
       <>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <PublicImg
           src={src}
           alt={alt}
-          className={`absolute inset-0 h-full w-full ${imgClassName}`}
+          imgClassName={imgClassName}
+          fill
+          priority={priority}
+          sizes={sizes || "(max-width: 1024px) 100vw, 50vw"}
         />
         <button
           type="button"
@@ -190,11 +259,13 @@ export function EditableImage({
         className={`relative w-full overflow-hidden border border-transparent hover:border-orange/70 ${aspectClass} bg-card`}
       >
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <PublicImg
             src={src}
             alt={alt}
-            className={`absolute inset-0 h-full w-full ${imgClassName}`}
+            imgClassName={imgClassName}
+            fill
+            priority={priority}
+            sizes={sizes || "100vw"}
           />
         ) : (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted bg-black/40">

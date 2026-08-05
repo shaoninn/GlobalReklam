@@ -93,6 +93,7 @@ export function FeaturedProducts({ products, title }: FeaturedProductsProps) {
                     fill
                     className="object-cover"
                     sizes="280px"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
