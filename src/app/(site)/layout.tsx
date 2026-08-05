@@ -43,22 +43,6 @@ export default async function SiteLayout({
 
   return (
     <StoreProvider>
-      <link
-        rel="preload"
-        as="image"
-        href="/images/hero/hero-global-sm.webp"
-        type="image/webp"
-        media="(max-width: 640px)"
-        fetchPriority="high"
-      />
-      <link
-        rel="preload"
-        as="image"
-        href="/images/hero/hero-global.webp"
-        type="image/webp"
-        media="(min-width: 641px)"
-        fetchPriority="high"
-      />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-orange focus:text-black focus:px-3 focus:py-2"

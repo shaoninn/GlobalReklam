@@ -53,7 +53,7 @@ async function fetchFromGraph(
 
   const res = await fetch(url.toString(), {
     next: { revalidate: 1800 },
-    signal: AbortSignal.timeout(12_000),
+    signal: AbortSignal.timeout(2_500),
   });
 
   if (!res.ok) {

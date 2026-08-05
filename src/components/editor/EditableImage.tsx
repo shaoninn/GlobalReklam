@@ -63,29 +63,37 @@ function PublicImg({
 
   if (usePicture) {
     const className = `absolute inset-0 h-full w-full ${imgClassName}`;
-    return (
-      <picture className={fill ? "absolute inset-0 block h-full w-full" : "contents"}>
-        {webpSm ? (
-          <source
-            media="(max-width: 640px)"
-            srcSet={webpSm}
-            type="image/webp"
-          />
-        ) : null}
-        {webp.endsWith(".webp") ? (
-          <source srcSet={webp} type="image/webp" />
-        ) : null}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+    // Single download via srcSet — do not set desktop src while also listing sm source.
+    if (webpSm) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={webp}
+          src={webpSm}
+          srcSet={`${webpSm} 960w, ${webp} 1600w`}
+          sizes={sizes || "(max-width: 640px) 100vw, 50vw"}
           alt={alt}
+          width={1600}
+          height={1600}
           className={className}
           loading={priority ? "eager" : "lazy"}
-          decoding={priority ? "sync" : "async"}
+          decoding="async"
           fetchPriority={priority ? "high" : "auto"}
-          sizes={sizes}
         />
-      </picture>
+      );
+    }
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={webp}
+        alt={alt}
+        width={1600}
+        height={1600}
+        className={className}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
+        sizes={sizes}
+      />
     );
   }
 

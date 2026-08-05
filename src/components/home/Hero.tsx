@@ -1,10 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ArrowRight, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EditableText } from "@/components/editor/EditableText";
 import { EditableImage } from "@/components/editor/EditableImage";
-import { ValueProps, type ValuePropItem } from "@/components/home/ValueProps";
+import { useEditor } from "@/components/editor/EditorProvider";
+import { HeroMedia } from "@/components/home/HeroMedia";
+import type { ValuePropItem } from "@/components/home/ValueProps";
+
+const ValueProps = dynamic(() =>
+  import("@/components/home/ValueProps").then((m) => m.ValueProps)
+);
 
 interface HeroProps {
   title: string;
@@ -15,14 +22,15 @@ interface HeroProps {
   styles?: Record<string, string>;
 }
 
-const DEFAULT_HERO = "/images/hero/hero-global.webp";
+export const DEFAULT_HERO_IMAGE = "/images/hero/hero-global.webp";
 const DEFAULT_BODY =
   "CNC kesim, neon LED, kutu harf ve dijital baskı ile markanızı Antalya'da görünür kılıyoruz. Keşiften montaja tek ekip.";
 
 export function Hero({ title, subtitle, body, image, valueProps, styles }: HeroProps) {
+  const { enabled } = useEditor();
   const words = title.split(" ");
   const highlightIndex = words.findIndex((w) => /çözüm|tabela/i.test(w));
-  const bg = image || DEFAULT_HERO;
+  const bg = image || DEFAULT_HERO_IMAGE;
 
   return (
     <section className="relative overflow-hidden">
@@ -86,19 +94,24 @@ export function Hero({ title, subtitle, body, image, valueProps, styles }: HeroP
             </div>
           </div>
 
-          <div className="relative order-2 lg:order-2 animate-hero min-w-0">
+          {/* No opacity animation on LCP media — that delayed paint by ~0.7s */}
+          <div className="relative order-2 lg:order-2 min-w-0">
             <div className="relative aspect-[16/11] sm:aspect-[5/4] lg:aspect-[4/5] xl:aspect-square max-h-[42svh] sm:max-h-none mx-auto w-full rounded-2xl overflow-hidden border border-border bg-card">
-              <EditableImage
-                contentKey="hero_image"
-                value={bg}
-                fallback={DEFAULT_HERO}
-                alt="Global Reklam hero"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                imgClassName="object-cover object-center"
-                help="Ana sayfa sağ görsel. Editörde “Arka plan görseli” düğmesine tıklayın."
-              />
+              {enabled ? (
+                <EditableImage
+                  contentKey="hero_image"
+                  value={bg}
+                  fallback={DEFAULT_HERO_IMAGE}
+                  alt="Global Reklam hero"
+                  fill
+                  priority
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
+                  imgClassName="object-cover object-center"
+                  help="Ana sayfa sağ görsel. Editörde “Arka plan görseli” düğmesine tıklayın."
+                />
+              ) : (
+                <HeroMedia src={bg} alt="Global Reklam hero" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 pointer-events-none" />
             </div>
             <div

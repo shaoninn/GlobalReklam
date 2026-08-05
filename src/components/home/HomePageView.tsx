@@ -1,5 +1,7 @@
 import dynamic from "next/dynamic";
-import { Hero } from "@/components/home/Hero";
+import { preload } from "react-dom";
+import { Hero, DEFAULT_HERO_IMAGE } from "@/components/home/Hero";
+import { heroPreloadHrefs } from "@/components/home/HeroMedia";
 import { HomeCategoriesSection } from "@/components/home/HomeCategoriesSection";
 import { HomeQuickLinks } from "@/components/home/HomeQuickLinks";
 import { InstagramStrip } from "@/components/shop/InstagramStrip";
@@ -36,6 +38,17 @@ const CTASection = dynamic(() =>
 
 export async function HomePageView() {
   const data = await loadHomePageData();
+  const heroSrc = data.heroImage || DEFAULT_HERO_IMAGE;
+  const { mobile, desktop } = heroPreloadHrefs(heroSrc);
+
+  // One preload with srcSet — avoids unused-desktop-preload on mobile (and vice versa).
+  preload(desktop, {
+    as: "image",
+    fetchPriority: "high",
+    imageSrcSet:
+      mobile === desktop ? desktop : `${mobile} 960w, ${desktop} 1600w`,
+    imageSizes: "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw",
+  });
 
   return (
     <>
@@ -43,7 +56,7 @@ export async function HomePageView() {
         title={data.heroTitle}
         subtitle={data.heroSubtitle}
         body={data.heroBody}
-        image={data.heroImage}
+        image={heroSrc}
         valueProps={data.valueProps}
         styles={data.styles}
       />

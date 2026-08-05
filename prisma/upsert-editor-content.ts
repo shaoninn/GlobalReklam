@@ -11,7 +11,7 @@ const keys: { key: string; title: string; content: string }[] = [
   {
     key: "hero_image",
     title: "Hero Görsel",
-    content: "/images/hero/hero-global.png",
+    content: "/images/hero/hero-global.webp",
   },
   {
     key: "services_section_title",

@@ -24,7 +24,8 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
   display: "swap",
   adjustFontFallback: true,
-  preload: true,
+  // Avoid competing with LCP image bandwidth (4 font files was overkill).
+  preload: false,
 });
 
 const siteUrl = getSiteUrl();

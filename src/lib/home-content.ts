@@ -10,6 +10,25 @@ import { buildStats, buildValueProps } from "@/lib/page-content";
 import { INSTAGRAM, FEATURE_BAR } from "@/lib/constants";
 import { getInstagramFeed } from "@/lib/instagram";
 import { styleContentKey } from "@/lib/text-style";
+import { toWebpSrc } from "@/lib/image-optimize";
+
+const DEFAULT_HERO_IMAGE = "/images/hero/hero-global.webp";
+
+/** Never stall homepage HTML on Instagram Graph (cold workers / 12s abort). */
+async function getInstagramForHome(fallbackUrl: string) {
+  try {
+    return await Promise.race([
+      getInstagramFeed(),
+      new Promise<Awaited<ReturnType<typeof getInstagramFeed>>>((_, reject) => {
+        setTimeout(() => reject(new Error("instagram-budget")), 350);
+      }),
+    ]);
+  } catch {
+    // Warm cache in background for the next request.
+    void getInstagramFeed();
+    return { posts: [], profileUrl: fallbackUrl || INSTAGRAM, live: false };
+  }
+}
 
 const HOME_CONTENT_KEYS = [
   "hero_title",
@@ -169,7 +188,7 @@ function pickStyles(
 
 export async function loadHomePageData() {
   try {
-    const [map, projects, settings, categories, products, recentPool, ig] =
+    const [map, projects, settings, categories, products, recentPool] =
       await Promise.all([
         getContentMap([...HOME_KEYS]),
         getFeaturedProjects(),
@@ -177,8 +196,9 @@ export async function loadHomePageData() {
         getActiveCategories(),
         getFeaturedProducts(),
         getRecentProductPool(),
-        getInstagramFeed(),
       ]);
+
+    const ig = await getInstagramForHome(settings.instagram || INSTAGRAM);
 
     const processSteps = [1, 2, 3, 4].map((n) => ({
       n: map[`process_${n}_number`] || "",
@@ -239,7 +259,7 @@ export async function loadHomePageData() {
       heroTitle: map.hero_title || DEFAULT_HERO_TITLE,
       heroSubtitle: map.hero_subtitle || DEFAULT_HERO_SUBTITLE,
       heroBody: map.hero_body || undefined,
-      heroImage: map.hero_image || undefined,
+      heroImage: toWebpSrc(map.hero_image || DEFAULT_HERO_IMAGE),
       worksEyebrow: map.works_eyebrow || undefined,
       worksTitle: map.works_title || undefined,
       servicesIntro: map.services_intro || undefined,
@@ -248,7 +268,9 @@ export async function loadHomePageData() {
       shippingBannerTitle: map.shipping_banner_title || undefined,
       ctaTitle: map.cta_title || undefined,
       ctaButtonLabel: map.cta_button_label || undefined,
-      ctaBanners: [1, 2, 3, 4].map((n) => map[`cta_banner_${n}`] || ""),
+      ctaBanners: [1, 2, 3, 4].map((n) =>
+        toWebpSrc(map[`cta_banner_${n}`] || "")
+      ),
       processEyebrow: map.process_section_eyebrow || undefined,
       processTitle: map.process_section_title || undefined,
       processDesc: map.process_section_desc || undefined,

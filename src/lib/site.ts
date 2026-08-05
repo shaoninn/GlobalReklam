@@ -57,7 +57,7 @@ export const CACHE_TAGS = {
 } as const;
 
 /** Cross-request TTL for hot layout data (remote MySQL RTT is expensive). */
-const LAYOUT_TTL_MS = 60_000;
+const LAYOUT_TTL_MS = 120_000;
 
 function digitsOnly(value: string): string {
   return value.replace(/\D/g, "");

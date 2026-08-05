@@ -96,7 +96,7 @@ const siteContent = [
   {
     key: "hero_image",
     title: "Hero Görsel",
-    content: "/images/hero/hero-global.png",
+    content: "/images/hero/hero-global.webp",
   },
   {
     key: "about_intro",
