@@ -20,12 +20,17 @@ async function main() {
   for (const p of projects) {
     console.log(`${p.slug} -> ${p.category?.slug ?? "NULL"} | ${p.image}`);
   }
-  const nullCat = await prisma.product.count({ where: { categoryId: null } });
+  // Product.categoryId is required; Project.categoryId is optional.
+  const nullCatProjects = await prisma.project.count({
+    where: { categoryId: null },
+  });
   const withImg = await prisma.product.count({
     where: { images: { not: "[]" } },
   });
   const total = await prisma.product.count();
-  console.log(`\nProducts: ${total}, with images: ${withImg}, no category: ${nullCat}`);
+  console.log(
+    `\nProducts: ${total}, with images: ${withImg}, projects without category: ${nullCatProjects}`,
+  );
   const sample = await prisma.product.findMany({
     take: 5,
     select: {
