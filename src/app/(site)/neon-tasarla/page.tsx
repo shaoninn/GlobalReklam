@@ -8,6 +8,7 @@ export const revalidate = 60;
 
 
 export const metadata = {
+  alternates: { canonical: "/neon-tasarla" },
   title: "Neon Tasarla | Global Reklam",
   description:
     "Yazı, font, renk, backboard ve ölçü seçerek canlı neon önizleme ve fiyat tahmini alın.",

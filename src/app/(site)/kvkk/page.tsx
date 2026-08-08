@@ -1,4 +1,5 @@
 export const metadata = {
+  alternates: { canonical: "/kvkk" },
   title: "KVKK Aydınlatma Metni | Global Reklam",
 };
 

@@ -2,6 +2,7 @@ import { LegalShell } from "@/components/legal/LegalShell";
 import { COMPANY } from "@/lib/legal";
 
 export const metadata = {
+  alternates: { canonical: "/kullanim-kosullari" },
   title: "Kullanım Koşulları",
   description: "Global Reklam web sitesi kullanım koşulları.",
 };

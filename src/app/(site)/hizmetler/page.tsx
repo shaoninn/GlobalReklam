@@ -43,6 +43,7 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export const metadata = {
+  alternates: { canonical: "/hizmetler" },
   title: "Hizmetlerimiz | Global Reklam",
   description: "Tabela ve reklam çözümlerimizi keşfedin.",
 };

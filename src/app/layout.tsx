@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     "global reklam",
     "cnc kesim antalya",
   ],
-  alternates: { canonical: "/" },
+  // Per-page canonical only — never set "/" here (inherits to all routes).
   icons: {
     icon: [
       { url: "/favicon.ico?v=2", sizes: "any" },

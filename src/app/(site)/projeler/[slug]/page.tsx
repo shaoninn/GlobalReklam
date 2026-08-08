@@ -20,6 +20,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   return {
+    alternates: { canonical: `/projeler/${slug}` },
     title: `${slug.replace(/-/g, " ")} | Global Reklam`,
   };
 }

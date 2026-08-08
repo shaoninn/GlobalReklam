@@ -5,6 +5,12 @@ import { getSiteSettings } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  alternates: { canonical: "/odeme" },
+  robots: { index: false, follow: false },
+  title: "Ödeme Bilgileri",
+};
+
 interface Props {
   searchParams: Promise<{ orderNo?: string; phone?: string }>;
 }

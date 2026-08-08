@@ -13,6 +13,7 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   return {
+    alternates: { canonical: `/blog/${slug}` },
     title: `${slug.replace(/-/g, " ")} | Global Reklam`,
   };
 }

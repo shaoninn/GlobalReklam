@@ -2,6 +2,7 @@ import { LegalShell } from "@/components/legal/LegalShell";
 import { COMPANY } from "@/lib/legal";
 
 export const metadata = {
+  alternates: { canonical: "/cerez-politikasi" },
   title: "Çerez Politikası",
   description: "Global Reklam çerez ve yerel depolama kullanımı.",
 };

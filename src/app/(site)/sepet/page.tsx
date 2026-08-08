@@ -4,8 +4,10 @@ import { getSiteSettings } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
+  alternates: { canonical: "/sepet" },
   title: "Sepet | Global Reklam",
-  description: "Alışveriş sepetiniz",
+  description: "Teklif listeniz",
+  robots: { index: false, follow: false },
 };
 
 export default async function SepetPage() {

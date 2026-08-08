@@ -5,6 +5,7 @@ export const revalidate = 60;
 
 
 export const metadata = {
+  alternates: { canonical: "/hakkimizda" },
   title: "Hakkımızda | Global Reklam",
   description: "Global Reklam hakkında bilgi edinin. Misyon, vizyon ve değerlerimiz.",
 };

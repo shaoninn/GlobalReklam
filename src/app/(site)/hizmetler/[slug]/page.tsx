@@ -18,8 +18,14 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const name = categoryTitleFromSlug(slug);
-  if (!name) return { title: "Kategori | Global Reklam" };
+  if (!name) {
+    return {
+      alternates: { canonical: `/hizmetler/${slug}` },
+      title: "Kategori | Global Reklam",
+    };
+  }
   return {
+    alternates: { canonical: `/hizmetler/${slug}` },
     title: `${name} | Global Reklam`,
     description: `${name} ürünleri`,
   };

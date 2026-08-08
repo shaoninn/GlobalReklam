@@ -2,6 +2,7 @@ import { LegalShell } from "@/components/legal/LegalShell";
 import { COMPANY } from "@/lib/legal";
 
 export const metadata = {
+  alternates: { canonical: "/iade-politikasi" },
   title: "İade Politikası",
   description: "Global Reklam iade, iptal ve değişiklik koşulları.",
 };

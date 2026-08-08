@@ -10,6 +10,7 @@ export const revalidate = 60;
 
 
 export const metadata = {
+  alternates: { canonical: "/blog" },
   title: "Blog",
   description: "Tabela ve reklam sektörü hakkında bilgilendirici yazılar.",
 };

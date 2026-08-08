@@ -14,8 +14,14 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const sector = getSectorBySlug(slug);
-  if (!sector) return { title: "Sektör | Global Reklam" };
+  if (!sector) {
+    return {
+      alternates: { canonical: `/sektor/${slug}` },
+      title: "Sektör | Global Reklam",
+    };
+  }
   return {
+    alternates: { canonical: `/sektor/${slug}` },
     title: `${sector.title} Tabela Çözümleri | Global Reklam`,
     description: sector.description,
   };

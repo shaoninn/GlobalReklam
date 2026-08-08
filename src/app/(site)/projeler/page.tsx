@@ -12,6 +12,7 @@ export const revalidate = 60;
 
 
 export const metadata = {
+  alternates: { canonical: "/projeler" },
   title: "Projeler | Global Reklam",
   description: "Tamamladığımız tabela ve reklam projeleri.",
 };

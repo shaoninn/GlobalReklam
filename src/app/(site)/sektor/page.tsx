@@ -5,6 +5,7 @@ export const revalidate = 60;
 
 
 export const metadata = {
+  alternates: { canonical: "/sektor" },
   title: "Sektörel Tabela Çözümleri | Global Reklam",
   description: "Sektörünüze özel tabela, neon ve branda çözümleri.",
 };

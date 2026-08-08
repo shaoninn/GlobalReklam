@@ -1,4 +1,5 @@
 export const metadata = {
+  alternates: { canonical: "/gizlilik-politikasi" },
   title: "Gizlilik Politikası | Global Reklam",
 };
 

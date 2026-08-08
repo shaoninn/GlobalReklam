@@ -6,6 +6,7 @@ export const revalidate = 60;
 
 
 export const metadata = {
+  alternates: { canonical: "/iletisim" },
   title: "İletişim | Global Reklam",
   description: "Global Reklam iletişim bilgileri ve teklif formu.",
 };

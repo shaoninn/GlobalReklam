@@ -36,8 +36,14 @@ const getProductBySlug = cache(async (slug: string) => {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Ürün Bulunamadı" };
+  if (!product) {
+    return {
+      alternates: { canonical: `/urun/${slug}` },
+      title: "Ürün Bulunamadı",
+    };
+  }
   return {
+    alternates: { canonical: `/urun/${slug}` },
     title: product.name,
     description: product.shortDesc || product.description || undefined,
     openGraph: {
