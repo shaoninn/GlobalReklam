@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { MapPin, Phone, GripVertical } from "lucide-react";
 import { SiteLink } from "@/components/ui/SiteLink";
+import { AdsConversionLink } from "@/components/ui/AdsConversionLink";
 import { HeaderClient } from "./HeaderClient";
 import { Logo } from "@/components/brand/Logo";
 import { WhatsAppIcon } from "@/components/brand/WhatsAppIcon";
@@ -183,7 +184,7 @@ export function Header({
               maxOffset={80}
               className="inline-flex"
             >
-              <a
+              <AdsConversionLink
                 href={`tel:+${settings.phoneRaw}`}
                 className="hidden sm:inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-2 py-0.5 text-muted hover:text-orange hover:border-orange/40 transition-colors"
               >
@@ -194,9 +195,9 @@ export function Header({
                   className="text-muted"
                   help="Üst bardaki telefon numarası."
                 />
-              </a>
+              </AdsConversionLink>
             </EditableLayoutBox>
-            <a
+            <AdsConversionLink
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
@@ -209,7 +210,7 @@ export function Header({
                 className="text-[#25D366] truncate"
                 help="WhatsApp bağlantı yazısı."
               />
-            </a>
+            </AdsConversionLink>
           </div>
         </div>
       </div>

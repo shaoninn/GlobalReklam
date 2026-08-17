@@ -10,6 +10,7 @@ import {
 import { EditableText } from "@/components/editor/EditableText";
 import { EditableSetting } from "@/components/editor/EditableSetting";
 import { trackAdsContactConversion } from "@/lib/ads";
+import { AdsConversionLink } from "@/components/ui/AdsConversionLink";
 
 export type ContactFormCopy = {
   cardTitle: string;
@@ -141,7 +142,7 @@ export function ContactForm({
             <li className="flex gap-3">
               <Phone size={18} className="text-orange flex-shrink-0" />
               <div className="flex flex-col gap-1">
-                <a
+                <AdsConversionLink
                   href={`tel:+${settings.phoneRaw}`}
                   className="text-sm text-orange hover:underline inline-flex flex-wrap items-center gap-1"
                 >
@@ -157,8 +158,8 @@ export function ContactForm({
                     as="span"
                     help="Telefon numarası (görünen)"
                   />
-                </a>
-                <a
+                </AdsConversionLink>
+                <AdsConversionLink
                   href={settings.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -170,7 +171,7 @@ export function ContactForm({
                     as="span"
                     help="WhatsApp ikincil link metni"
                   />
-                </a>
+                </AdsConversionLink>
               </div>
             </li>
             <li className="flex gap-3">
@@ -204,7 +205,7 @@ export function ContactForm({
             </li>
           </ul>
 
-          <a
+          <AdsConversionLink
             href={`${settings.whatsappUrl}?text=${encodeURIComponent(
               c.whatsappPrefill
             )}`}
@@ -218,7 +219,7 @@ export function ContactForm({
               as="span"
               help="WhatsApp ana buton metni"
             />
-          </a>
+          </AdsConversionLink>
           <p className="mt-2 text-[11px] text-[#666]">
             Prefill:{" "}
             <EditableText

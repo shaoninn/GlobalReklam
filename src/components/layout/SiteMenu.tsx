@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronRight, Menu, Phone, X } from "lucide-react";
 import { SiteLink } from "@/components/ui/SiteLink";
+import { AdsConversionLink } from "@/components/ui/AdsConversionLink";
 import { WhatsAppIcon } from "@/components/brand/WhatsAppIcon";
 import { LEGAL_LINKS, PRIMARY_NAV_HREFS } from "@/lib/constants";
 import { SECTORS } from "@/lib/sectors";
@@ -252,20 +253,20 @@ export function SiteMenu({
                 </div>
 
                 <div className="p-3 border-t border-border grid grid-cols-1 gap-2">
-                  <a
+                  <AdsConversionLink
                     href={`tel:+${phoneRaw}`}
                     className="flex items-center justify-center gap-2 px-4 py-3 border border-border text-sm font-semibold text-white hover:border-orange hover:text-orange rounded-lg"
                   >
                     <Phone size={16} /> Ara
-                  </a>
-                  <a
+                  </AdsConversionLink>
+                  <AdsConversionLink
                     href={waHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white text-sm font-semibold rounded-lg hover:brightness-110"
                   >
                     <WhatsAppIcon size={16} /> WhatsApp
-                  </a>
+                  </AdsConversionLink>
                   <p className="text-center text-xs text-muted">{phone}</p>
                 </div>
               </nav>

@@ -1,4 +1,5 @@
 import { SiteLink } from "@/components/ui/SiteLink";
+import { AdsConversionLink } from "@/components/ui/AdsConversionLink";
 import { Camera, MapPin, Mail, Phone } from "lucide-react";
 import { SITE_NAME, CATEGORIES, LEGAL_LINKS } from "@/lib/constants";
 import { Logo } from "@/components/brand/Logo";
@@ -36,7 +37,7 @@ export function Footer({ settings, navLinks, footerBlurb }: FooterProps) {
               >
                 <Camera size={16} />
               </a>
-              <a
+              <AdsConversionLink
                 href={settings.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -44,7 +45,7 @@ export function Footer({ settings, navLinks, footerBlurb }: FooterProps) {
                 aria-label="WhatsApp"
               >
                 <WhatsAppIcon size={16} />
-              </a>
+              </AdsConversionLink>
             </div>
           </div>
 
@@ -99,14 +100,14 @@ export function Footer({ settings, navLinks, footerBlurb }: FooterProps) {
             <ul className="space-y-3.5">
               <li className="flex items-start gap-2.5">
                 <Phone size={16} className="text-orange shrink-0 mt-0.5" />
-                <a
+                <AdsConversionLink
                   href={settings.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-orange text-sm font-semibold hover:underline"
                 >
                   {settings.phone}
-                </a>
+                </AdsConversionLink>
               </li>
               <li className="flex items-start gap-2.5">
                 <Mail size={16} className="text-orange shrink-0 mt-0.5" />

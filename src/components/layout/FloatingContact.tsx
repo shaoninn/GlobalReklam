@@ -2,6 +2,7 @@
 
 import { Phone } from "lucide-react";
 import { WhatsAppIcon } from "@/components/brand/WhatsAppIcon";
+import { AdsConversionLink } from "@/components/ui/AdsConversionLink";
 
 interface FloatingContactProps {
   phone: string;
@@ -22,14 +23,14 @@ export function FloatingContact({ phone, whatsappUrl }: FloatingContactProps) {
 
   return (
     <div className="fixed z-40 flex flex-col gap-2 bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))]">
-      <a
+      <AdsConversionLink
         href={telHref(phone)}
         className="w-12 h-12 flex items-center justify-center rounded-full bg-card border border-border text-orange hover:border-orange transition-colors md:hidden"
         aria-label={`Ara: ${phone}`}
       >
         <Phone size={20} />
-      </a>
-      <a
+      </AdsConversionLink>
+      <AdsConversionLink
         href={`${whatsappUrl}?text=${waText}`}
         target="_blank"
         rel="noopener noreferrer"
@@ -37,7 +38,7 @@ export function FloatingContact({ phone, whatsappUrl }: FloatingContactProps) {
         aria-label="WhatsApp ile yazın"
       >
         <WhatsAppIcon size={28} />
-      </a>
+      </AdsConversionLink>
     </div>
   );
 }
