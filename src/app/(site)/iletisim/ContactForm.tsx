@@ -9,6 +9,7 @@ import {
 } from "@/lib/constants";
 import { EditableText } from "@/components/editor/EditableText";
 import { EditableSetting } from "@/components/editor/EditableSetting";
+import { trackAdsContactConversion } from "@/lib/ads";
 
 export type ContactFormCopy = {
   cardTitle: string;
@@ -94,6 +95,7 @@ export function ContactForm({
       }
 
       setStatus("success");
+      trackAdsContactConversion();
       setForm({
         name: "",
         phone: "",

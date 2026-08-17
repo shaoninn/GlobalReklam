@@ -1,33 +1,29 @@
 "use client";
 
 import Script from "next/script";
+import { ADS_AW_ID } from "@/lib/ads";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
-const AW_ID = process.env.NEXT_PUBLIC_AW_ID;
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID?.trim();
 
 /**
- * GA4 + optional Google Ads — load after idle so LCP is not competing.
- * Ads DNS/AAAA sorunlarını gtag çözmez; bkz. SITE-TEMPLATE-BLUEPRINT DNS bölümü.
+ * Sitewide Google tag: Ads AW-* always (conversion tracking) + optional GA4.
+ * afterInteractive so conversion events are not dropped before gtag loads.
  */
 export function Analytics() {
-  if (!GA_ID && !AW_ID) return null;
-
   const configs = [
+    `gtag('config', '${ADS_AW_ID}');`,
     GA_ID ? `gtag('config', '${GA_ID}', { anonymize_ip: true });` : "",
-    AW_ID ? `gtag('config', '${AW_ID}');` : "",
   ]
     .filter(Boolean)
-    .join("\n");
-
-  const primaryId = GA_ID || AW_ID;
+    .join("\n          ");
 
   return (
     <>
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${primaryId}`}
-        strategy="lazyOnload"
+        src={`https://www.googletagmanager.com/gtag/js?id=${ADS_AW_ID}`}
+        strategy="afterInteractive"
       />
-      <Script id="gtag-init" strategy="lazyOnload">
+      <Script id="gtag-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
