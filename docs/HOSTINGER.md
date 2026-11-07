@@ -16,9 +16,11 @@ hPanel → **Websites → Add website → Node.js Web App**
 | Branch | `main` |
 | Root | `./` |
 | Node | 20 veya 22 |
-| Build | `npm run build` |
+| Build | `npm run build` (webpack + 1 CPU — Hostinger thread limit) |
 | Start | `npm run start` |
 | Output | `.next` |
+
+Next.js **16.3.3+** Hostinger’da Turbopack ile derlenmez (glibc / PostCSS IPC / worker flood). `scripts/build.mjs` zaten `next build --webpack` ve `experimental.cpus: 1` kullanır.
 
 ## Ortam değişkenleri (Hostinger paneli)
 

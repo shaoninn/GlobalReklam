@@ -38,15 +38,20 @@ const staticAssetCache = [
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
-  // Hostinger / sandboxed builds block loopback TCP that Turbopack PostCSS
-  // child processes need. Worker threads avoid that IPC path.
+  // Hostinger: Next 16.3.3+ must build with webpack (glibc / Turbopack limits).
+  // Cap workers — Hostinger reports many CPUs but enforces low thread/PID limits
+  // ("OS can't spawn worker thread: Resource temporarily unavailable").
   experimental: {
-    turbopackPluginRuntimeStrategy: "workerThreads",
+    cpus: 1,
+    workerThreads: false,
+    parallelServerCompiles: false,
+    parallelServerBuildTraces: false,
   },
   serverExternalPackages: [
     "@prisma/client",
     "@prisma/adapter-mariadb",
     "mariadb",
+    "sharp",
   ],
   // Hostinger: runtime /_next/image sharp often 404s / spikes CPU.
   // Serve originals + pre-baked WebP from scripts/optimize-images.mjs.
@@ -59,6 +64,22 @@ const nextConfig = {
       { protocol: "https", hostname: "**" },
       { protocol: "http", hostname: "**" },
     ],
+  },
+  webpack: (config, { isServer, nextRuntime }) => {
+    // Keep Node DB stack out of Edge middleware/instrumentation graphs.
+    if (nextRuntime === "edge" || !isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "@/lib/db": false,
+        "@/lib/db-url": false,
+        "./instrumentation-node": false,
+        "@/generated/prisma/client": false,
+        mariadb: false,
+        "@prisma/adapter-mariadb": false,
+        "@prisma/client": false,
+      };
+    }
+    return config;
   },
   async headers() {
     return [
