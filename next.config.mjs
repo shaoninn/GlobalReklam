@@ -38,6 +38,16 @@ const staticAssetCache = [
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
+  // Hostinger / sandboxed builds block loopback TCP that Turbopack PostCSS
+  // child processes need. Worker threads avoid that IPC path.
+  experimental: {
+    turbopackPluginRuntimeStrategy: "workerThreads",
+  },
+  serverExternalPackages: [
+    "@prisma/client",
+    "@prisma/adapter-mariadb",
+    "mariadb",
+  ],
   // Hostinger: runtime /_next/image sharp often 404s / spikes CPU.
   // Serve originals + pre-baked WebP from scripts/optimize-images.mjs.
   images: {
